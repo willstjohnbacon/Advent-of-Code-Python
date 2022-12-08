@@ -4,11 +4,11 @@ def isSubset(elf1, elf2):
     #     return False
 
     if (int(elf1[0]) >= int(elf2[0])) and (int(elf1[1]) <= int(elf2[1])):
-        print ("Elf 1 redundant:", elf1, elf2)
+        # print ("Elf 1 redundant:", elf1, elf2)
         return True
 
     if (int(elf2[0]) >= int(elf1[0])) and (int(elf2[1]) <= int(elf1[1])):
-        print ("Elf 2 redundant:", elf1, elf2)
+        # print ("Elf 2 redundant:", elf1, elf2)
         return True
 
     return False
@@ -69,5 +69,5 @@ if Testing:
 else:
     file = open("input.txt", "r")
 
-print("Part 1: ",part1())
-print("Part 2: ",part2())
+print("Part 1: ", part1())
+print("Part 2: ", part2())
