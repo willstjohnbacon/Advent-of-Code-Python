@@ -1,4 +1,4 @@
-file = open("day01/input.txt", "r")
+file = open("input.txt", "r")
 
 def part1():
     calories_str = 0
@@ -16,6 +16,8 @@ def part1():
     return highest_calories
 
 def part2():
+    file.seek(0)
+
     calories_str = 0
     highest_calories = [0]
 
@@ -29,12 +31,12 @@ def part2():
             highest_calories.append(current_elf_calories)
 
     listLength = len(highest_calories)
-    print("1.",highest_calories[listLength-1])
-    print("1.",highest_calories[listLength-2])
-    print("1.",highest_calories[listLength-3])
+    print("1.", highest_calories[listLength-1])
+    print("2.", highest_calories[listLength-2])
+    print("3.", highest_calories[listLength-3])
 
     return ("sum:",highest_calories[listLength-1] + highest_calories[listLength-2] + highest_calories[listLength-3])
 
 
-print("Part 1: ",part1())
-print("Part 2: ",part2())
+print("Part 1: ", part1())
+print("Part 2: ", part2())
