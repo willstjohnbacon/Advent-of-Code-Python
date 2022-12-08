@@ -17,11 +17,11 @@ def drop(numToDrop, stackNum):
 def part1():
     moveOps = file.readlines()
 
-    print(dockStacks)
+    # print(dockStacks)
 
     for op in moveOps:
         command = op.split()
-        print(command)
+        # print(command)
 
         numToMove = int(command[1])
         fromStack = int(command[3]) - 1
@@ -31,7 +31,7 @@ def part1():
             lift(1, fromStack)
             drop(1, toStack)
 
-        print (dockStacks)
+        # print (dockStacks)
 
     answer = ''
 
@@ -44,12 +44,12 @@ def part2():
     file.seek(0)
     moveOps = file.readlines()
 
-    print(dockStacks)
-    print(moveOps)
+    # print(dockStacks)
+    # print(moveOps)
 
     for op in moveOps:
         command = op.split()
-        print(command)
+        # print(command)
 
         numToMove = int(command[1])
         fromStack = int(command[3]) - 1
@@ -59,7 +59,7 @@ def part2():
         lift(numToMove, fromStack)
         drop(numToMove, toStack)
 
-        print(dockStacks)
+        # print(dockStacks)
 
     answer = ''
 
@@ -69,5 +69,5 @@ def part2():
     return answer
 
 
-# print("Part 1: ",part1())
-print("Part 2: ",part2())
+# print("Part 1: ", part1())
+print("Part 2: ", part2())
