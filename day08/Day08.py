@@ -1,13 +1,12 @@
 with open("input.txt") as inputFile:
     treeGrid = [list(row.rstrip()) for row in inputFile]
 
-print (treeGrid)
+# print (treeGrid)
 
 columns = len(treeGrid[0])
 rows = len(treeGrid)
 
-print("Grid is ", rows, " by ", columns
-      )
+# print("Grid is ", rows, " by ", columns)
 
 def isVisibleFromLeft(x, y):
     height = treeGrid[y][x]
@@ -98,10 +97,5 @@ def part2():
     return highestScenicScore
 
 
-print(treesVisibleLeft(2,1))
-print(treesVisibleRight(2,1))
-print(treesVisibleUp(2,1))
-print(treesVisibleDown(2,1))
-
-print("Part 1: ",part1())
-print("Part 2: ",part2())
+print("Part 1: ", part1())
+print("Part 2: ", part2())
