@@ -1,11 +1,10 @@
 def part1():
+    for line in file.readlines():
+        print("Input Line: ", line)
     return
 
 def part2():
     return
-
-
-
 
 
 
@@ -15,5 +14,5 @@ if Testing:
 else:
     file = open("input.txt", "r")
 
-print("Part 1: ",part1())
-print("Part 2: ",part2())
+print("Part 1: ", part1())
+print("Part 2: ", part2())
