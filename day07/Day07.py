@@ -13,21 +13,22 @@ def cd(directory):
     else:
         currentDirectory.append(directory)
 
-    print('Change directory to', currentDirectory)
+    # print('Change directory to', currentDirectory)
     return
 
 def ls():
-    print('ls')
+    # print('ls')
     return True
 
 def dir():
+    # print('dir')
     return True
 
 def part1():
     lineNum = 1
 
     for line in (file.readlines()):
-        print ("Line ", lineNum, ": ", line)
+        # print ("Line ", lineNum, ": ", line)
 
         if line[0] == '$':
             if line[2] == 'c':
@@ -41,7 +42,7 @@ def part1():
             fileSize = int(line.split(' ')[0])
             if (currentDirectorySize := directorySizes.get(currentDirectoryStr)):
                 currentDirectorySize += fileSize
-                print(currentDirectorySize)
+                # print(currentDirectorySize)
             else:
                 currentDirectorySize = fileSize
             directorySizes[currentDirectoryStr] = currentDirectorySize
@@ -51,7 +52,7 @@ def part1():
             for i in range(1, len(currentDirectory)):
                 parentDirs.pop()
                 parentDirectoryStr = '/'.join(parentDirs)
-                print ("Adding ", fileSize, " to ", parentDirectoryStr)
+                # print ("Adding ", fileSize, " to ", parentDirectoryStr)
 
                 if (directorySizes.get(parentDirectoryStr)):
                     directorySizes[parentDirectoryStr] += fileSize
@@ -59,7 +60,7 @@ def part1():
                     directorySizes[parentDirectoryStr] = fileSize
 
 
-    print(directorySizes)
+    # print(directorySizes)
 
     smallDirSize = 0
     for key in directorySizes.keys():
@@ -81,5 +82,5 @@ def part2():
     return currentSmallestDirectory
 
 
-print("Part 1: ",part1())
-print("Part 2: ",part2())
+print("Part 1: ", part1())
+print("Part 2: ", part2())
