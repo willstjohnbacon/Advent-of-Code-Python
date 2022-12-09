@@ -4,8 +4,8 @@
 
 result_cheatsheet = {'A X': 4, 'A Y': 8, 'A Z': 3, 'B X': 1, 'B Y': 5, 'B Z': 9, 'C X': 7, 'C Y': 2, 'C Z': 6}
 
-type_scores = {'A': 1, 'X': 1, 'B': 2, 'Y': 2, 'C': 3, 'Z': 3}
-win_score = {'win':6, 'draw':3, 'loss':0}
+# type_scores = {'A': 1, 'X': 1, 'B': 2, 'Y': 2, 'C': 3, 'Z': 3}
+# win_score = {'win':6, 'draw':3, 'loss':0}
 
 def part1():
     total_score = 0
