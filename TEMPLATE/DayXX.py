@@ -4,6 +4,7 @@ def part1():
     return
 
 def part2():
+    file.seek(0)
     return
 
 
