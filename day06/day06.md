@@ -1,3 +1,4 @@
+<main>
 <article class="day-desc"><h2>--- Day 6: Tuning Trouble ---</h2><p>The preparations are finally complete; you and the Elves leave camp on foot and begin to make your way toward the <em class="star">star</em> fruit grove.</p>
 <p>As you move through the dense undergrowth, one of the Elves gives you a handheld <em>device</em>. He says that it has many fancy features, but the most important one to set up right now is the <em>communication system</em>.</p>
 <p>However, because he's heard you have <a href="/2016/day/6">significant</a> <a href="/2016/day/25">experience</a> <a href="/2019/day/7">dealing</a> <a href="/2019/day/9">with</a> <a href="/2019/day/16">signal-based</a> <a href="/2021/day/25">systems</a>, he convinced the other Elves that it would be okay to give you their one malfunctioning device - surely you'll have no problem fixing it.</p>
@@ -18,3 +19,22 @@
 </ul>
 <p><em>How many characters need to be processed before the first start-of-packet marker is detected?</em></p>
 </article>
+<p>Your puzzle answer was <code>1804</code>.</p><article class="day-desc"><h2 id="part2">--- Part Two ---</h2><p>Your device's communication system is correctly detecting packets, but still isn't working. It looks like it also needs to look for <em>messages</em>.</p>
+<p>A <em>start-of-message marker</em> is just like a start-of-packet marker, except it consists of <em>14 distinct characters</em> rather than 4.</p>
+<p>Here are the first positions of start-of-message markers for all of the above examples:</p>
+<ul>
+<li><code>mjqjpqmgbljsphdztnvjfqwrcgsmlb</code>: first marker after character <code><em>19</em></code></li>
+<li><code>bvwbjplbgvbhsrlpgdmjqwftvncz</code>: first marker after character <code><em>23</em></code></li>
+<li><code>nppdvjthqldpwncqszvftbrmjlhg</code>: first marker after character <code><em>23</em></code></li>
+<li><code>nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg</code>: first marker after character <code><em>29</em></code></li>
+<li><code>zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw</code>: first marker after character <code><em>26</em></code></li>
+</ul>
+<p><em>How many characters need to be processed before the first start-of-message marker is detected?</em></p>
+</article>
+<p>Your puzzle answer was <code>2508</code>.</p><p class="day-success">Both parts of this puzzle are complete! They provide two gold stars: **</p>
+<p>At this point, you should <a href="/2022">return to your Advent calendar</a> and try another puzzle.</p>
+<p>If you still want to see it, you can <a href="6/input" target="_blank">get your puzzle input</a>.</p>
+<p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22Tuning+Trouble%22+%2D+Day+6+%2D+Advent+of+Code+2022&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2022%2Fday%2F6&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
+  <a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=I%27ve+completed+%22Tuning+Trouble%22+%2D+Day+6+%2D+Advent+of+Code+2022+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2022%2Fday%2F6'}else{return false;}" target="_blank">Mastodon</a></span>]</span> this puzzle.</p>
+</main>

@@ -1,3 +1,4 @@
+<main>
 <article class="day-desc"><h2>--- Day 7: No Space Left On Device ---</h2><p>You can hear birds chirping and raindrops hitting leaves as the expedition proceeds. Occasionally, you can even hear much louder sounds in the distance; how big do the animals get out here, anyway?</p>
 <p>The device the Elves gave you has problems with more than just its communication system. You try to run a system update:</p>
 <pre><code>$ system-update --please --pretty-please-with-sugar-on-top
@@ -74,3 +75,23 @@ $ ls
 <p>To begin, find all of the directories with a total size of <em>at most 100000</em>, then calculate the sum of their total sizes. In the example above, these directories are <code>a</code> and <code>e</code>; the sum of their total sizes is <code><em>95437</em></code> (94853 + 584). (As in this example, this process can count files more than once!)</p>
 <p>Find all of the directories with a total size of at most 100000. <em>What is the sum of the total sizes of those directories?</em></p>
 </article>
+<p>Your puzzle answer was <code>1077191</code>.</p><article class="day-desc"><h2 id="part2">--- Part Two ---</h2><p>Now, you're ready to choose a directory to delete.</p>
+<p>The total disk space available to the filesystem is <code><em>70000000</em></code>. To run the update, you need unused space of at least <code><em>30000000</em></code>. You need to find a directory you can delete that will <em>free up enough space</em> to run the update.</p>
+<p>In the example above, the total size of the outermost directory (and thus the total amount of used space) is <code>48381165</code>; this means that the size of the <em>unused</em> space must currently be <code>21618835</code>, which isn't quite the <code>30000000</code> required by the update. Therefore, the update still requires a directory with total size of at least <code>8381165</code> to be deleted before it can run.</p>
+<p>To achieve this, you have the following options:</p>
+<ul>
+<li>Delete directory <code>e</code>, which would increase unused space by <code>584</code>.</li>
+<li>Delete directory <code>a</code>, which would increase unused space by <code>94853</code>.</li>
+<li>Delete directory <code>d</code>, which would increase unused space by <code>24933642</code>.</li>
+<li>Delete directory <code>/</code>, which would increase unused space by <code>48381165</code>.</li>
+</ul>
+<p>Directories <code>e</code> and <code>a</code> are both too small; deleting them would not free up enough space. However, directories <code>d</code> and <code>/</code> are both big enough! Between these, choose the <em>smallest</em>: <code>d</code>, increasing unused space by <code><em>24933642</em></code>.</p>
+<p>Find the smallest directory that, if deleted, would free up enough space on the filesystem to run the update. <em>What is the total size of that directory?</em></p>
+</article>
+<p>Your puzzle answer was <code>5649896</code>.</p><p class="day-success">Both parts of this puzzle are complete! They provide two gold stars: **</p>
+<p>At this point, you should <a href="/2022">return to your Advent calendar</a> and try another puzzle.</p>
+<p>If you still want to see it, you can <a href="7/input" target="_blank">get your puzzle input</a>.</p>
+<p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22No+Space+Left+On+Device%22+%2D+Day+7+%2D+Advent+of+Code+2022&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2022%2Fday%2F7&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
+  <a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' &amp;&amp; mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=I%27ve+completed+%22No+Space+Left+On+Device%22+%2D+Day+7+%2D+Advent+of+Code+2022+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2022%2Fday%2F7'}else{return false;}" target="_blank">Mastodon</a></span>]</span> this puzzle.</p>
+</main>
