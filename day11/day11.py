@@ -1,3 +1,7 @@
+import copy
+
+Testing = False
+
 def add(old, num):
     return old + num
 
@@ -7,23 +11,21 @@ def multiply(old, num):
 def square(old, _):
     return old ** 2
 
-# monkey_behaviour = [
-#     {'operation': multiply, 'operand': 19, 'divisor': 23, 'true': 2, 'false': 3},
-#     {'operation': add, 'operand': 6, 'divisor': 19, 'true': 2, 'false': 0},
-#     {'operation': square, 'operand': -1, 'divisor': 13, 'true': 1, 'false': 3},
-#     {'operation': add, 'operand': 3, 'divisor': 17, 'true': 0, 'false': 1}
-# ]
-#
-# monkey_items = [
-#     [79, 98],
-#     [54, 65, 75, 74],
-#     [79, 60, 97],
-#     [74]
-# ]
-#
-# monkey_inspections = [0, 0, 0, 0]
+example_monkey_behaviour = [
+    {'operation': multiply, 'operand': 19, 'divisor': 23, 'true': 2, 'false': 3},
+    {'operation': add, 'operand': 6, 'divisor': 19, 'true': 2, 'false': 0},
+    {'operation': square, 'operand': -1, 'divisor': 13, 'true': 1, 'false': 3},
+    {'operation': add, 'operand': 3, 'divisor': 17, 'true': 0, 'false': 1}
+]
 
-monkey_behaviour = [
+example_monkey_items = [
+    [79, 98],
+    [54, 65, 75, 74],
+    [79, 60, 97],
+    [74]
+]
+
+real_monkey_behaviour = [
     {'operation': multiply, 'operand': 13, 'divisor': 19, 'true': 2, 'false': 7},
     {'operation': add, 'operand': 2, 'divisor': 3, 'true': 4, 'false': 5},
     {'operation': add, 'operand': 1, 'divisor': 11, 'true': 7, 'false': 3},
@@ -34,7 +36,7 @@ monkey_behaviour = [
     {'operation': add, 'operand': 5, 'divisor': 7, 'true': 3, 'false': 6}
 ]
 
-monkey_items = [
+real_monkey_items = [
     [75, 75, 98, 97, 79, 97, 64],
     [50, 99, 80, 84, 65, 95],
     [96, 74, 68, 96, 56, 71, 75, 53],
@@ -45,9 +47,27 @@ monkey_items = [
     [95, 65, 58, 76],
 ]
 
-monkey_inspections = [0, 0, 0, 0, 0, 0, 0, 0]
+monkey_behaviour = []
+monkey_items = []
+monkey_inspections = []
+
+def reset():
+    global monkey_behaviour
+    global monkey_items
+    global monkey_inspections
+
+    if Testing:
+        monkey_behaviour = copy.deepcopy(example_monkey_behaviour)
+        monkey_items = copy.deepcopy(example_monkey_items)
+        monkey_inspections = [0, 0, 0, 0]
+    else:
+        monkey_behaviour = copy.deepcopy(real_monkey_behaviour)
+        monkey_items = copy.deepcopy(real_monkey_items)
+        monkey_inspections = [0, 0, 0, 0, 0, 0, 0, 0]
 
 def part1():
+    reset()
+
     for round in range(0, 20):
         monkey_num = 0
 
@@ -55,8 +75,8 @@ def part1():
             operation = monkey['operation']
             operand = monkey['operand']
             divisor = monkey['divisor']
-            ifTrueMonkey = monkey['true']
-            ifFalseMonkey = monkey['false']
+            trueMonkey = monkey['true']
+            falseMonkey = monkey['false']
 
             for item_num in range(0, len(monkey_items[monkey_num])):
                 monkey_inspections[monkey_num] += 1
@@ -65,9 +85,9 @@ def part1():
                 worry_level = worry_level // 3
 
                 if worry_level % divisor == 0:
-                    monkey_items[ifTrueMonkey].append(worry_level)
+                    monkey_items[trueMonkey].append(worry_level)
                 else:
-                    monkey_items[ifFalseMonkey].append(worry_level)
+                    monkey_items[falseMonkey].append(worry_level)
 
             monkey_num += 1
 
@@ -76,6 +96,8 @@ def part1():
     return monkey_inspections[0] * monkey_inspections[1]
 
 def part2():
+    reset()
+
     common_divisor = 1
 
     for monkey in monkey_behaviour:
@@ -90,8 +112,8 @@ def part2():
             operation = monkey['operation']
             operand = monkey['operand']
             divisor = monkey['divisor']
-            ifTrueMonkey = monkey['true']
-            ifFalseMonkey = monkey['false']
+            trueMonkey = monkey['true']
+            falseMonkey = monkey['false']
 
             for item_num in range(0, len(monkey_items[monkey_num])):
                 monkey_inspections[monkey_num] += 1
@@ -105,14 +127,12 @@ def part2():
 
                 # if monkey_num == 4:
                 #     print (worry_level)
-
-                # if monkey_num == 4:
                 #     print ("Dividing...")
 
                 if worry_level % divisor == 0:
-                    monkey_items[ifTrueMonkey].append(worry_level)
+                    monkey_items[trueMonkey].append(worry_level)
                 else:
-                    monkey_items[ifFalseMonkey].append(worry_level)
+                    monkey_items[falseMonkey].append(worry_level)
 
                 # if monkey_num == 4:
                 #     print ("Done")
@@ -125,11 +145,5 @@ def part2():
     return monkey_inspections[0] * monkey_inspections[1]
 
 
-Testing = False
-if Testing:
-    file = open("sampleInput.txt", "r")
-else:
-    file = open("input.txt", "r")
-
-# print("Part 1: ", part1())
+print("Part 1: ", part1())
 print("Part 2: ", part2())
