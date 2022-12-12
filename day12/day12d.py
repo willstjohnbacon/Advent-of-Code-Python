@@ -1,5 +1,3 @@
-import sys
-
 Testing = False
 
 def getNumericHeight(alphaHeight):
@@ -47,20 +45,20 @@ class Point:
                                     if (self.height - point_map[y][x].getHeight()) <= 1:
                                         self.connecting_points.append(point_map[y][x])
 
-def findRoute(search_stack, steps_stack):
+def findRoute(seek_start, search_stack, steps_stack):
     while len(search_stack) > 0:
         # print(f'Steps: {steps_stack}')
 
         point = search_stack.pop(0)
         steps = steps_stack.pop(0)
 
-        if point.isStart():
+        if seek_start and point.isStart():
+            return steps
+
+        if not seek_start and point.getHeight() == 0:
             return steps
 
         connections = point.getConnectingPoints()
-
-        # if len(connections) > 0:
-        #     connections.sort(key=lambda p: p.height, reverse=True)
 
         for connection in connections:
             if not (connection in search_stack):
@@ -88,13 +86,29 @@ def part1():
         for x in range(0, len(point_map[y])):
             point_map[y][x].determineConnectingPoints(point_map)
 
-    return findRoute(search_stack, [0])
+    return findRoute(True, search_stack, [0])
 
 def part2():
     file.seek(0)
-    return
 
-sys.setrecursionlimit(100000)
+    point_map = []
+    search_stack = []
+
+    height_map = [list(line.rstrip()) for line in file]
+
+    for y in range(0, len(height_map)):
+        point_map.append([])
+        for x in range(0, len(height_map[y])):
+            point = Point(y, x, height_map)
+            point_map[y].append(point)
+            if point.isEnd():
+                search_stack.append(point)
+
+    for y in range(0, len(point_map)):
+        for x in range(0, len(point_map[y])):
+            point_map[y][x].determineConnectingPoints(point_map)
+
+    return findRoute(False, search_stack, [0])
 
 if Testing:
     file = open("sampleInput.txt", "r")
