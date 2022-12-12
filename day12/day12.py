@@ -4,9 +4,9 @@ Testing = False
 
 def getNumericHeight(alphaHeight):
     if alphaHeight == 'S':
-        return -1
+        return 0
     if alphaHeight == 'E':
-        return 26
+        return 25
 
     return ord(alphaHeight) - 97
 
@@ -14,6 +14,7 @@ class Point:
     def __init__(self, y, x, height_map):
         self.y = y
         self.x = x
+        self.isEnd = (height_map[y][x] == "E")
         self.height = getNumericHeight(height_map[y][x])
         self.connecting_points = []
         self.steps_to_end = 999999999999999999999999999999999999999999999999
@@ -27,6 +28,7 @@ class Point:
 
     def isVisited(self):
         return self.visited
+
     def getConnectingPoints(self):
         return self.connecting_points
 
@@ -51,7 +53,7 @@ class Point:
 
         self.visited = True
 
-        if self.height == 26:
+        if self.isEnd:
             self.steps_to_end = 0
         else:
             for point in self.connecting_points:
@@ -67,7 +69,6 @@ def startPos(height_map):
         for x in range(0, len(height_map[y])):
             if height_map[y][x] == 'S':
                 return y, x
-
 
 def part1():
     point_map = []
