@@ -40,10 +40,10 @@ class Point:
                                 (y == self.y - 1 and x == self.x + 1) or
                                 (y == self.y + 1 and x == self.x - 1) or
                                 (y == self.y + 1 and x == self.x + 1)):
-                                    if (abs(point_map[y][x].getHeight() - self.height) <= 1):
+                                    if (point_map[y][x].getHeight() - self.height) <= 1:
                                         self.connecting_points.append(point_map[y][x])
 
-        self.connecting_points.sort(key=lambda p: p.height)
+        # self.connecting_points.sort(key=lambda p: p.height, reverse=True)
 
     def stepsToEnd(self):
         if self.visited:
@@ -51,7 +51,7 @@ class Point:
 
         self.visited = True
 
-        if self.height == 12:
+        if self.height == 26:
             self.steps_to_end = 0
         else:
             for point in self.connecting_points:
