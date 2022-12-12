@@ -47,8 +47,6 @@ class Point:
                                     if (point_map[y][x].getHeight() - self.height) <= 1:
                                         self.connecting_points.append(point_map[y][x])
 
-        # self.connecting_points.sort(key=lambda p: p.height, reverse=True)
-
 def findRoute(search_stack, steps_stack):
     while len(search_stack) > 0:
         # print(f'Steps: {steps_stack}')
