@@ -5,7 +5,7 @@ def findEndOfNumeric(string, startPos):
     bracketPos = string.find(']', startPos)
 
     if bracketPos == -1:
-        print("ERROR: No terminating ']' in string")
+        print("ERROR: No terminating ']' in string", string)
         exit(1)
 
     if commaPos == -1:
@@ -102,9 +102,9 @@ def isCorrectOrder(packets):
 
 def part1():
     if TESTING:
-        file = open("sampleInput_part2.txt", "r")
+        file = open("sampleInput.txt", "r")
     else:
-        file = open("input_part2.txt", "r")
+        file = open("input.txt", "r")
 
     lines = file.readlines()
 
@@ -132,29 +132,18 @@ def part2():
         file = open("input_part2.txt", "r")
 
     file.seek(0)
-
-    lines = [line.rstrip() for line in file]
-
-    linenum = 0
-
-    while linenum < len(lines):
-        if lines[linenum] == "":
-            lines.pop(linenum)
-        linenum += 1
-
+    lines = [line.rstrip() for line in file if line != "\n"]
     print ("Starting lines:", lines)
 
     swap_made = False
 
     for i in range(0, len(lines) - 1):
-        for j in range(0, len(lines) - 1):
-            packet1 = lines[j]
-            packet2 = lines[j + 1]
-            if not isCorrectOrder([packet1, packet2]):
+        for j in range(0, len(lines) - i - 1): #The last i packets will be in the correct order
+            if not isCorrectOrder([lines[j], lines[j+1]]):
                 swap_made = True
                 lines.insert(j, lines.pop(j + 1))
 
-        if not swap_made:
+        if not swap_made: #Ran through without changing anything so must be sorted
             break
 
     print ("Sorted Lines:", lines)
@@ -162,10 +151,13 @@ def part2():
     decoder_key = 1
 
     for linenum in range(0, len(lines)):
-        if (lines[linenum] == "[[2]]") or (lines[linenum] == "[[6]]"):
+        if (lines[linenum] in ["[[2]]", "[[6]]"]):
             decoder_key *= (linenum + 1)
 
     return decoder_key
 
-print("Part 1: ", part1())
-print("Part 2: ", part2())
+part1 = part1()
+part2 = part2()
+
+print("Part 1: ", part1)
+print("Part 2: ", part2)
