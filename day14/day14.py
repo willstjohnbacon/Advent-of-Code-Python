@@ -6,14 +6,14 @@ def printCave(cave):
                 print(cave[y][x], end='')
             print()
 
-def flowSand(cave, min_width, until_full):
+def flowSand(cave, min_width):
     sand_at_rest = 0
 
     while True:
         sand_posX = 500 - min_width
         sand_posY = 0
 
-        if (until_full and (cave[sand_posY][sand_posX] == "o")):
+        if cave[sand_posY][sand_posX] == "o": #Cave has filled
             return sand_at_rest
 
         cave[sand_posY][sand_posX] = "o"
@@ -24,7 +24,7 @@ def flowSand(cave, min_width, until_full):
             new_posX = sand_posX
             new_posY = sand_posY
 
-            if (not until_full) and (sand_posY + 1 == len(cave)):
+            if sand_posY + 1 == len(cave): #Sand is running into the endless abyss
                 return sand_at_rest
 
             if cave[sand_posY + 1][sand_posX] == ".":
@@ -105,7 +105,7 @@ def part1():
     mapCave(cave, formations, min_width)
     printCave(cave)
 
-    sand_at_rest = flowSand(cave, min_width, False)
+    sand_at_rest = flowSand(cave, min_width)
     printCave(cave)
     return sand_at_rest
 
@@ -126,7 +126,7 @@ def part2():
     mapCave(cave, formations, min_width)
     printCave(cave)
 
-    sand_at_rest = flowSand(cave, min_width, True)
+    sand_at_rest = flowSand(cave, min_width)
     printCave(cave)
     return sand_at_rest
 
