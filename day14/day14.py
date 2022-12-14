@@ -1,72 +1,57 @@
-TESTING = True
+TESTING = False
 
-xpoints = []
-
-def printGrid(width, height):
-    y = 1
-    print('  ', end='')
-    for x in range(0, width):
-        print(y, end='')
-        y = y + 1
-        if y == 10:
-            y = 0
-    print('')
-
-    print(' +', '-' * (width), sep='')
-    z = 1
-    for i in range(0, height):
-        line = str(z) + "|"
-        for x in range(width):
-            if [x, i] in xpoints:
-                line += 'X'
-            else:
-                line += '.'
-        print(line)
-        z = z + 1
-        if z == 10:
-            z = 0
-
-def axisSize(lines):
-    highest_point_x = 0
-    lowest_point_x = 1000
-    highest_point_y = 0
-    lowest_point_y = 1000
-    for points in lines:
-        current_line = points.split(' -> ')
-        for point in current_line:
-            print(point)
-            x = int(point[0:3])
-            y = int(point[4:])
-            if highest_point_x < x:
-                highest_point_x = x
-            elif lowest_point_x > x:
-                lowest_point_x = x
-
-            if highest_point_y < y:
-                highest_point_y = y
-            elif lowest_point_y > y:
-                lowest_point_y = y
-
-    print(lowest_point_x, highest_point_x)
-    print(lowest_point_y, highest_point_y)
+def printCave(cave):
+        for y in range(len(cave)):
+            for x in range(len(cave[y])):
+                print(cave[y][x], end='')
+            print()
 
 def part1():
     file.seek(0)
-    lines = [line.rstrip() for line in file]
-    # width = 551 - 492
-    # height = 177 - 14
-    width = 503 - 498
-    height = 9 - 4
-    for points in lines:
-        current_line = points.split(' -> ')
-        for point in current_line:
-            x = int(point[0:3])
-            y = int(point[4:])
-            # xpoints.append([551-x, 177-y])
-            print(x, y)
-            xpoints.append([503-x, 9-y])
+    formations = [line.rstrip().split(" -> ") for line in file]
 
-    printGrid(width, height)
+    min_width = 999999999
+    max_width = 0
+    depth = 0
+
+    for formation in formations:
+        for pointnum in range(len(formation)):
+            x = int(formation[pointnum][0:3])
+            y = int(formation[pointnum][4:])
+            if x < min_width:
+                min_width = x
+            if x > max_width:
+                max_width = x
+            if y > depth:
+                depth = y
+
+    print(f"Cave span {min_width} to {max_width} and depth {depth}")
+
+    max_width += 1
+    depth += 1
+    cave = [["." for x in range(max_width - min_width)] for y in range(depth)]
+
+    cave[0][500 - min_width] = "+"
+
+    for formation in formations:
+        for pointnum in range(len(formation) - 1):
+            x1 = int(formation[pointnum][0:3]) - min_width
+            y1 = int(formation[pointnum][4:])
+            x2 = int(formation[pointnum + 1][0:3]) - min_width
+            y2 = int(formation[pointnum + 1][4:])
+
+            if (x1 != x2) and (y1 != y2):
+                print(f"ERROR: diagonal line in {formation}: ({x1},{y1}) -> ({x2},{y2}")
+                exit(1)
+
+            if (y1 == y2): #horizontal line
+                for x in range(min(x1, x2), max(x1, x2) + 1):
+                    cave[y1][x] = "#"
+            else: #vertical line
+                for y in range(min(y1, y2), max(y1, y2) + 1):
+                    cave[y][x1] = "#"
+
+    printCave(cave)
     return
 
 def part2():
