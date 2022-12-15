@@ -1,20 +1,29 @@
 import re
 
-TESTING = True
+TESTING = False
 
-def printCave(cave):
-    for y in range(len(cave)):
-        for x in range(len(cave[y])):
-            print(cave[y][x], end='')
-        print()
+# def printCaveSegment(cave, x_bounds, y_bounds, center, segment):
+#     y_min = center[1] - y_bounds[0] - (segment[1] // 2)
+#     y_max = center[1] - y_bounds[0] + (segment[1] // 2)
+#     x_min = center[0] - x_bounds[0] - (segment[0] // 2)
+#     x_max = center[0] - x_bounds[0] + (segment[0] // 2)
+#
+#     print(f"Showing cave segment ({x_min + x_bounds[0]}, {y_min + y_bounds[0]}) to ({x_max + x_bounds[0]}, {y_max + y_bounds[0]})")
+#
+#     for y in range(y_min, y_max):
+#         for x in range(x_min, x_max):
+#             item = cave.get((x, y))
+#             print(item if item else ".", end='')
+#         print()
 
 def readSensors(lines):
     sensor_data = {}
+    beacons = set()
 
     min_x = float('inf')
     max_x = float('-inf')
-    min_y = float('inf')
-    max_y = float('-inf')
+    # min_y = float('inf')
+    # max_y = float('-inf')
 
     for line in lines:
         raw_data = re.match('Sensor at x=(.*?), y=(.*?): closest beacon is at x=(.*?), y=(.*?)$', line)
@@ -22,55 +31,90 @@ def readSensors(lines):
         beacon = (int(raw_data[3]), int(raw_data[4]))
 
         print (f"Sensor at {sensor}  Beacon at {beacon}")
-        sensor_data.update({sensor:beacon})
+        sensor_range = abs(beacon[0] - sensor[0]) + abs(beacon[1] - sensor[1])
 
-        min_x = min(min_x, sensor[0], beacon[0])
-        max_x = max(max_x, sensor[0], beacon[0])
-        min_y = min(min_y, sensor[1], beacon[1])
-        max_y = max(max_y, sensor[1], beacon[1])
+        sensor_data.update({sensor:sensor_range})
+        beacons.add(beacon)
 
-    print(sensor_data)
-    print(f"Cave bounds: ({min_x}, {min_y}) -> ({max_x}, {max_y})")
+        min_x = min(min_x, sensor[0] - sensor_range, beacon[0])
+        max_x = max(max_x, sensor[0] + sensor_range, beacon[0])
+        # min_y = min(min_y, sensor[1], beacon[1])
+        # max_y = max(max_y, sensor[1], beacon[1])
 
-    return sensor_data, min_x, max_x, min_y, max_y
+    print(f"Sensors: {sensor_data}")
+    print(f"Beacons: {beacons}")
+    # print(f"Cave bounds: ({min_x}, {min_y}) -> ({max_x}, {max_y})")
 
-def normaliseSensorData(sensor_data, min_x, min_y):
-    normalised_sensor_data = {}
+    return sensor_data, beacons, (min_x, max_x) #, (min_y, max_y)
 
-    for sensor, beacon in sensor_data.items():
-        sensor_x, sensor_y = sensor[0], sensor[1]
-        beacon_x, beacon_y = beacon[0], beacon[1]
+# def normaliseSensorData(sensor_data, min_x, min_y):
+#     normalised_sensor_data = {}
+#
+#     for sensor, beacon in sensor_data.items():
+#         sensor_x, sensor_y = sensor[0], sensor[1]
+#         beacon_x, beacon_y = beacon[0], beacon[1]
+#
+#         normalised_sensor = (sensor_x - min_x, sensor_y - min_y)
+#         normalised_beacon = (beacon_x - min_x, beacon_y - min_y)
+#         normalised_sensor_data.update({normalised_sensor:normalised_beacon})
+#
+#     return normalised_sensor_data
 
-        normalised_sensor = (sensor_x - min_x, sensor_y - min_y)
-        normalised_beacon = (beacon_x - min_x, beacon_y - min_y)
-        normalised_sensor_data.update({normalised_sensor:normalised_beacon})
+# def addSensorsAndBeacons(cave, sensor_data):
+#     for sensor, beacon in sensor_data.items():
+#         if cave.get(sensor) in ["S", "B"]:
+#             print(f"ERROR: Something already at {sensor}: {cave.get(sensor)}")
+#             exit(1)
+#
+#         if cave.get(beacon) == "S":
+#             print(f"ERROR: Sensor already at {beacon}")
+#             exit(1)
+#
+#         cave.update({sensor:"S"})
+#         cave.update({beacon:"B"})
 
-    return normalised_sensor_data
-
-def addSensorsAndBeacons(cave, sensor_data):
-    for sensor, beacon in sensor_data.items():
-        sensor_x, sensor_y = sensor[0], sensor[1]
-        beacon_x, beacon_y = beacon[0], beacon[1]
-
-        cave[sensor_y][sensor_x] = "S"
-        cave[beacon_y][beacon_x] = "B"
+def isInSensorRange(point, sensor_data):
+    for sensor, sensor_range in sensor_data.items():
+        if (abs(point[0] - sensor[0]) + abs(point[1] - sensor[1])) <= sensor_range:
+            return True
+    return False
 
 def part1():
     file.seek(0)
     lines = [line.rstrip() for line in file]
 
-    sensor_data, min_x, max_x, min_y, max_y = readSensors(lines)
-    max_x += 1
-    max_y += 1
-    sensor_data = normaliseSensorData(sensor_data, min_x, min_y)
+    sensor_data, beacons, x_bounds = readSensors(lines)
 
-    cave = [["." for x in range(max_x - min_x)] for y in range(max_y - min_y)]
+    non_beacon_positions = 0
 
-    addSensorsAndBeacons(cave, sensor_data)
+    if TESTING:
+        y = 10
+    else:
+        y = 2000000
 
-    printCave(cave)
+    for x in range(x_bounds[0], x_bounds[1] + 1):
+        if (x, y) in beacons:
+            print(f"Beacon at {(x, y)}")
+        if (not (x, y) in beacons) and isInSensorRange((x, y), sensor_data):
+            non_beacon_positions += 1
 
-    return
+    # sensor_data, x_bounds, y_bounds = readSensors(lines)
+    # x_bounds = (x_bounds[0], x_bounds[1] + 1)
+    # y_bounds = (y_bounds[0], y_bounds[1] + 1)
+    # sensor_data = normaliseSensorData(sensor_data, x_bounds[0], y_bounds[0])
+
+    # cave = {}
+    # cave = [["." for x in range(max_x - min_x)] for y in range(max_y - min_y)]
+
+    # addSensorsAndBeacons(cave, sensor_data)
+
+    # centre = (10, 10)
+    # segment = (20, 20)
+    # centre = (274522, 2000000)
+    # segment = (200, 200)
+    # printCaveSegment(cave, x_bounds, y_bounds, centre, segment)
+
+    return non_beacon_positions
 
 def part2():
     file.seek(0)
