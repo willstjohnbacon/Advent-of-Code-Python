@@ -9,20 +9,6 @@ if TESTING:
 else:
     MAX_BEACON_POS = 4000000
 
-# def printCaveSegment(cave, x_bounds, y_bounds, center, segment):
-#     y_min = center[1] - y_bounds[0] - (segment[1] // 2)
-#     y_max = center[1] - y_bounds[0] + (segment[1] // 2)
-#     x_min = center[0] - x_bounds[0] - (segment[0] // 2)
-#     x_max = center[0] - x_bounds[0] + (segment[0] // 2)
-#
-#     print(f"Showing cave segment ({x_min + x_bounds[0]}, {y_min + y_bounds[0]}) to ({x_max + x_bounds[0]}, {y_max + y_bounds[0]})")
-#
-#     for y in range(y_min, y_max):
-#         for x in range(x_min, x_max):
-#             item = cave.get((x, y))
-#             print(item if item else ".", end='')
-#         print()
-
 def readSensors(lines):
     sensor_data = {}
     beacons = set()
@@ -55,50 +41,55 @@ def readSensors(lines):
     return sensor_data, beacons, (min_x, max_x), (min_y, max_y)
 
 def isInSensorRange(point, sensor_data):
+    if (point[0] > MAX_BEACON_POS) or (point[0] < 0) or (point[1] > MAX_BEACON_POS) or (point[1] < 0):
+        return True
+
     for sensor, sensor_range in sensor_data.items():
         if (abs(point[0] - sensor[0]) + abs(point[1] - sensor[1])) <= sensor_range:
             return True
     return False
 
-def findOverlappingSensors(sensor_data):
-    overlappingSensors = []
-    for sensor1, sensor_range1 in sensor_data.items():
-        for sensor2, sensor_range2 in sensor_data.items():
-            if sensor1 == sensor2:
-                continue
-            if ((sensor2, sensor1) in overlappingSensors):
-                continue
-
-            if (abs(sensor1[0] - sensor2[0]) + abs(sensor1[1] - sensor2[1])) <= (sensor_range1 + sensor_range2):
-                overlappingSensors.append((sensor1, sensor2))
-
-    return overlappingSensors
-
 def findBeacon(sensor_data, x_bounds, y_bounds):
-    for sensor_pair in findOverlappingSensors(sensor_data):
-        sensor1 = sensor_pair[0]
-        # sensor_range1 = sensor_data.get(sensor1)
-        sensor2 = sensor_pair[1]
-        # sensor_range2 = sensor_data.get(sensor2)
+    for sensor, sensor_range in sensor_data.items():
+        search_distance = sensor_range + 1
 
-        print(f"Checking between sensors {sensor1} and {sensor2}")
+        # x_min = max(x_bounds[0], sensor[0])
+        # x_max = min(x_bounds[1], sensor[0])
+        # y_min = max(y_bounds[0], sensor[1])
+        # y_max = min(y_bounds[1], sensor[1])
 
-        # mid_point_x = (sensor1[0] + sensor2[0]) // 2
-        # mid_point_y = (sensor1[1] + sensor2[1]) // 2
+        for i in range(0, search_distance + 1):
+            topright_segment_xpos = sensor[0] + i
+            topright_segment_ypos = sensor[1] - search_distance + i
+            bottomright_segment_xpos = sensor[0] + search_distance - i
+            bottomright_segment_ypos = sensor[1] + i
+            topleft_segment_xpos = sensor[0] - search_distance + i
+            topleft_segment_ypos = sensor[1] - i
+            bottomleft_segment_xpos = sensor[0] - i
+            bottomleft_segment_ypos = sensor[1] + search_distance - i
 
-        x_min = max(x_bounds[0], min(sensor1[0], sensor2[0]))
-        x_max = min(x_bounds[1], max(sensor1[0], sensor2[0]))
-        y_min = max(y_bounds[0], min(sensor1[1], sensor2[1]))
-        y_max = min(y_bounds[1], max(sensor1[1], sensor2[1]))
+            if not isInSensorRange((topright_segment_xpos, topright_segment_ypos), sensor_data):
+                return topright_segment_xpos * 4000000 + topright_segment_ypos
 
-        print(f"Bounds: {(x_min, y_min)} -> {(x_max, y_max)}")
+            if not isInSensorRange((bottomright_segment_xpos, bottomright_segment_ypos), sensor_data):
+                return bottomright_segment_xpos * 4000000 + bottomright_segment_ypos
 
-        for x in range(x_min, x_max):
-            for y in range(y_min, y_max):
-                if not isInSensorRange((x, y), sensor_data):
-                    print(f"Suitable beacon position at {(x, y)}")
-                    return (4000000 * x) + y
+            if not isInSensorRange((topleft_segment_xpos, topleft_segment_ypos), sensor_data):
+                return topleft_segment_xpos * 4000000 + topleft_segment_ypos
 
+            if not isInSensorRange((bottomleft_segment_xpos, bottomleft_segment_ypos), sensor_data):
+                return bottomleft_segment_xpos * 4000000 + bottomleft_segment_ypos
+
+    return "Failed to find beacon"
+
+        # print(f"Bounds: {(x_min, y_min)} -> {(x_max, y_max)}")
+        #
+        # for x in range(x_min, x_max):
+        #     for y in range(y_min, y_max):
+        #         if not isInSensorRange((x, y), sensor_data):
+        #             print(f"Suitable beacon position at {(x, y)}")
+        #             return (4000000 * x) + y
+        #
                 # point_distance1 = abs(x - sensor1[0]) + abs(y - sensor1[1])
                 # point_distance2 = abs(x - sensor2[0]) + abs(y - sensor2[1])
                 # if (point_distance > sensor_range) and (point_distance <= sensor_range + 2):
