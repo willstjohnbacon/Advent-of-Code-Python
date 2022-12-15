@@ -46,6 +46,7 @@ def normaliseSensorData(sensor_data, min_x, min_y):
         normalised_sensor_data.update({normalised_sensor:normalised_beacon})
 
     return normalised_sensor_data
+
 def addSensorsAndBeacons(cave, sensor_data):
     for sensor, beacon in sensor_data.items():
         sensor_x, sensor_y = sensor[0], sensor[1]
