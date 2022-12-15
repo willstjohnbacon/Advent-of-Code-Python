@@ -2,6 +2,13 @@ import re
 
 TESTING = False
 
+MIN_BEACON_POS = 0
+
+if TESTING:
+    MAX_BEACON_POS = 20
+else:
+    MAX_BEACON_POS = 4000000
+
 # def printCaveSegment(cave, x_bounds, y_bounds, center, segment):
 #     y_min = center[1] - y_bounds[0] - (segment[1] // 2)
 #     y_max = center[1] - y_bounds[0] + (segment[1] // 2)
@@ -22,8 +29,8 @@ def readSensors(lines):
 
     min_x = float('inf')
     max_x = float('-inf')
-    # min_y = float('inf')
-    # max_y = float('-inf')
+    min_y = float('inf')
+    max_y = float('-inf')
 
     for line in lines:
         raw_data = re.match('Sensor at x=(.*?), y=(.*?): closest beacon is at x=(.*?), y=(.*?)$', line)
@@ -36,16 +43,16 @@ def readSensors(lines):
         sensor_data.update({sensor:sensor_range})
         beacons.add(beacon)
 
-        min_x = min(min_x, sensor[0] - sensor_range, beacon[0])
-        max_x = max(max_x, sensor[0] + sensor_range, beacon[0])
-        # min_y = min(min_y, sensor[1], beacon[1])
-        # max_y = max(max_y, sensor[1], beacon[1])
+        min_x = max(MIN_BEACON_POS, min(min_x, sensor[0] - sensor_range, beacon[0]))
+        max_x = min(MAX_BEACON_POS, max(max_x, sensor[0] + sensor_range, beacon[0]))
+        min_y = max(MIN_BEACON_POS, min(min_y, sensor[1] - sensor_range, beacon[1]))
+        max_y = min(MAX_BEACON_POS, max(max_y, sensor[1] + sensor_range, beacon[0]))
 
     print(f"Sensors: {sensor_data}")
     print(f"Beacons: {beacons}")
-    # print(f"Cave bounds: ({min_x}, {min_y}) -> ({max_x}, {max_y})")
+    print(f"Search bounds: {(min_x, min_y)} -> {(max_x, max_y)}")
 
-    return sensor_data, beacons, (min_x, max_x) #, (min_y, max_y)
+    return sensor_data, beacons, (min_x, max_x), (min_y, max_y)
 
 def isInSensorRange(point, sensor_data):
     for sensor, sensor_range in sensor_data.items():
@@ -54,10 +61,16 @@ def isInSensorRange(point, sensor_data):
     return False
 
 def part1():
+    global MIN_BEACON_POS
+    MIN_BEACON_POS = float('-inf')
+
+    global MAX_BEACON_POS
+    MAX_BEACON_POS = float('inf')
+
     file.seek(0)
     lines = [line.rstrip() for line in file]
 
-    sensor_data, beacons, x_bounds = readSensors(lines)
+    sensor_data, beacons, x_bounds, _ = readSensors(lines)
 
     non_beacon_positions = 0
 
