@@ -2,6 +2,12 @@ import re
 
 TESTING = True
 
+def printCave(cave):
+    for y in range(len(cave)):
+        for x in range(len(cave[y])):
+            print(cave[y][x], end='')
+        print()
+
 def readSensors(lines):
     sensor_data = {}
 
@@ -33,7 +39,12 @@ def part1():
     lines = [line.rstrip() for line in file]
 
     sensor_data, min_x, max_x, min_y, max_y = readSensors(lines)
+    max_x += 1
+    max_y += 1
 
+    cave = [["." for x in range(max_x - min_x)] for y in range(max_y - min_y)]
+
+    printCave(cave)
     return
 
 def part2():
