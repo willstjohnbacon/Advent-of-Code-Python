@@ -2,11 +2,7 @@ import re
 
 TESTING = True
 
-def part1():
-    file.seek(0)
-    lines = [line.rstrip() for line in file]
-    print ("Input lines:", lines)
-
+def readSensors(lines):
     sensor_data = {}
 
     min_x = float('inf')
@@ -29,6 +25,15 @@ def part1():
 
     print(sensor_data)
     print(f"Cave bounds: ({min_x}, {min_y}) -> ({max_x}, {max_y})")
+
+    return sensor_data, min_x, max_x, min_y, max_y
+
+def part1():
+    file.seek(0)
+    lines = [line.rstrip() for line in file]
+
+    sensor_data, min_x, max_x, min_y, max_y = readSensors(lines)
+
     return
 
 def part2():
