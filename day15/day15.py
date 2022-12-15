@@ -60,6 +60,54 @@ def isInSensorRange(point, sensor_data):
             return True
     return False
 
+def findOverlappingSensors(sensor_data):
+    overlappingSensors = []
+    for sensor1, sensor_range1 in sensor_data.items():
+        for sensor2, sensor_range2 in sensor_data.items():
+            if sensor1 == sensor2:
+                continue
+            if ((sensor2, sensor1) in overlappingSensors):
+                continue
+
+            if (abs(sensor1[0] - sensor2[0]) + abs(sensor1[1] - sensor2[1])) <= (sensor_range1 + sensor_range2):
+                overlappingSensors.append((sensor1, sensor2))
+
+    return overlappingSensors
+
+def findBeacon(sensor_data, x_bounds, y_bounds):
+    for sensor_pair in findOverlappingSensors(sensor_data):
+        sensor1 = sensor_pair[0]
+        # sensor_range1 = sensor_data.get(sensor1)
+        sensor2 = sensor_pair[1]
+        # sensor_range2 = sensor_data.get(sensor2)
+
+        print(f"Checking between sensors {sensor1} and {sensor2}")
+
+        # mid_point_x = (sensor1[0] + sensor2[0]) // 2
+        # mid_point_y = (sensor1[1] + sensor2[1]) // 2
+
+        x_min = max(x_bounds[0], min(sensor1[0], sensor2[0]))
+        x_max = min(x_bounds[1], max(sensor1[0], sensor2[0]))
+        y_min = max(y_bounds[0], min(sensor1[1], sensor2[1]))
+        y_max = min(y_bounds[1], max(sensor1[1], sensor2[1]))
+
+        print(f"Bounds: {(x_min, y_min)} -> {(x_max, y_max)}")
+
+        for x in range(x_min, x_max):
+            for y in range(y_min, y_max):
+                if not isInSensorRange((x, y), sensor_data):
+                    print(f"Suitable beacon position at {(x, y)}")
+                    return (4000000 * x) + y
+
+                # point_distance1 = abs(x - sensor1[0]) + abs(y - sensor1[1])
+                # point_distance2 = abs(x - sensor2[0]) + abs(y - sensor2[1])
+                # if (point_distance > sensor_range) and (point_distance <= sensor_range + 2):
+                #     print(f"Checking point {(x, y)}")
+                #     if not isInSensorRange((x, y), sensor_data):
+                #         print(f"Suitable beacon position at {(x, y)}")
+                #         return (4000000 * x) + y
+
+
 def part1():
     global MIN_BEACON_POS
     MIN_BEACON_POS = float('-inf')
@@ -89,7 +137,11 @@ def part1():
 
 def part2():
     file.seek(0)
-    return
+    lines = [line.rstrip() for line in file]
+
+    sensor_data, beacons, x_bounds, y_bounds = readSensors(lines)
+
+    return findBeacon(sensor_data, x_bounds, y_bounds)
 
 
 if TESTING:
@@ -97,5 +149,5 @@ if TESTING:
 else:
     file = open("input.txt", "r")
 
-print("Part 1: ", part1())
+# print("Part 1: ", part1())
 print("Part 2: ", part2())
