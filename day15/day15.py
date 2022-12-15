@@ -47,32 +47,6 @@ def readSensors(lines):
 
     return sensor_data, beacons, (min_x, max_x) #, (min_y, max_y)
 
-# def normaliseSensorData(sensor_data, min_x, min_y):
-#     normalised_sensor_data = {}
-#
-#     for sensor, beacon in sensor_data.items():
-#         sensor_x, sensor_y = sensor[0], sensor[1]
-#         beacon_x, beacon_y = beacon[0], beacon[1]
-#
-#         normalised_sensor = (sensor_x - min_x, sensor_y - min_y)
-#         normalised_beacon = (beacon_x - min_x, beacon_y - min_y)
-#         normalised_sensor_data.update({normalised_sensor:normalised_beacon})
-#
-#     return normalised_sensor_data
-
-# def addSensorsAndBeacons(cave, sensor_data):
-#     for sensor, beacon in sensor_data.items():
-#         if cave.get(sensor) in ["S", "B"]:
-#             print(f"ERROR: Something already at {sensor}: {cave.get(sensor)}")
-#             exit(1)
-#
-#         if cave.get(beacon) == "S":
-#             print(f"ERROR: Sensor already at {beacon}")
-#             exit(1)
-#
-#         cave.update({sensor:"S"})
-#         cave.update({beacon:"B"})
-
 def isInSensorRange(point, sensor_data):
     for sensor, sensor_range in sensor_data.items():
         if (abs(point[0] - sensor[0]) + abs(point[1] - sensor[1])) <= sensor_range:
@@ -97,22 +71,6 @@ def part1():
             print(f"Beacon at {(x, y)}")
         if (not (x, y) in beacons) and isInSensorRange((x, y), sensor_data):
             non_beacon_positions += 1
-
-    # sensor_data, x_bounds, y_bounds = readSensors(lines)
-    # x_bounds = (x_bounds[0], x_bounds[1] + 1)
-    # y_bounds = (y_bounds[0], y_bounds[1] + 1)
-    # sensor_data = normaliseSensorData(sensor_data, x_bounds[0], y_bounds[0])
-
-    # cave = {}
-    # cave = [["." for x in range(max_x - min_x)] for y in range(max_y - min_y)]
-
-    # addSensorsAndBeacons(cave, sensor_data)
-
-    # centre = (10, 10)
-    # segment = (20, 20)
-    # centre = (274522, 2000000)
-    # segment = (200, 200)
-    # printCaveSegment(cave, x_bounds, y_bounds, centre, segment)
 
     return non_beacon_positions
 
