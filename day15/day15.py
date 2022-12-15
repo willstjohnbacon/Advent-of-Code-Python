@@ -34,6 +34,26 @@ def readSensors(lines):
 
     return sensor_data, min_x, max_x, min_y, max_y
 
+def normaliseSensorData(sensor_data, min_x, min_y):
+    normalised_sensor_data = {}
+
+    for sensor, beacon in sensor_data.items():
+        sensor_x, sensor_y = sensor[0], sensor[1]
+        beacon_x, beacon_y = beacon[0], beacon[1]
+
+        normalised_sensor = (sensor_x - min_x, sensor_y - min_y)
+        normalised_beacon = (beacon_x - min_x, beacon_y - min_y)
+        normalised_sensor_data.update({normalised_sensor:normalised_beacon})
+
+    return normalised_sensor_data
+def addSensorsAndBeacons(cave, sensor_data):
+    for sensor, beacon in sensor_data.items():
+        sensor_x, sensor_y = sensor[0], sensor[1]
+        beacon_x, beacon_y = beacon[0], beacon[1]
+
+        cave[sensor_y][sensor_x] = "S"
+        cave[beacon_y][beacon_x] = "B"
+
 def part1():
     file.seek(0)
     lines = [line.rstrip() for line in file]
@@ -41,10 +61,14 @@ def part1():
     sensor_data, min_x, max_x, min_y, max_y = readSensors(lines)
     max_x += 1
     max_y += 1
+    sensor_data = normaliseSensorData(sensor_data, min_x, min_y)
 
     cave = [["." for x in range(max_x - min_x)] for y in range(max_y - min_y)]
 
+    addSensorsAndBeacons(cave, sensor_data)
+
     printCave(cave)
+
     return
 
 def part2():
