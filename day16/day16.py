@@ -1,7 +1,7 @@
 import re
 from dijkstra import *
 
-TESTING = True
+TESTING = False
 
 def readValves(lines, valves):
     for line in lines:
@@ -131,6 +131,9 @@ def part2():
         if (valve_name == "AA") or (attributes.get("flow_rate") > 0):
             openable_valves.update({valve_name: attributes})
 
+    #Run calcMaxValue up to 26 secs and capture all paths where the sum is greater than part 1 run for 30 secs
+    #Then check these paths to find two where their intersection is just "AA" and return the total
+
     # openable_valves.pop("DD")
     # openable_valves.pop("BB")
     # openable_valves.pop("JJ")
@@ -143,7 +146,7 @@ def part2():
     # return calcMaxValue("JJ", openable_valves, distances, 22)
     # return calcMaxValue("BB", openable_valves, distances, 26)
     # return calcMaxValue("DD", openable_valves, distances, 29)
-    return calcMaxValue("AA", openable_valves, distances, 31)
+    return calcMaxValue("AA", openable_valves, distances, 26)
 
 
 if TESTING:
