@@ -92,7 +92,7 @@ def shortest(v, path):
     return
 
 def dijkstra(aGraph, start, target):
-    print("Dijkstra's Shortest Path Algorithm")
+    # print("Dijkstra's Shortest Path Algorithm")
     # Set the distance for the start node to zero
     start.set_distance(0)
 
@@ -116,11 +116,11 @@ def dijkstra(aGraph, start, target):
             if new_dist < next.get_distance():
                 next.set_distance(new_dist)
                 next.set_previous(current)
-                print('updated : current = %s next = %s new_dist = %s' \
-                % (current.get_id(), next.get_id(), next.get_distance()))
-            else:
-                print('not updated : current = %s next = %s new_dist = %s' \
-                % (current.get_id(), next.get_id(), next.get_distance()))
+                # print('updated : current = %s next = %s new_dist = %s' \
+                # % (current.get_id(), next.get_id(), next.get_distance()))
+            # else:
+                # print('not updated : current = %s next = %s new_dist = %s' \
+                # % (current.get_id(), next.get_id(), next.get_distance()))
 
         # Rebuild heap
         # 1. Pop every item

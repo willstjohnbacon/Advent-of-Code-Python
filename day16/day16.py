@@ -10,7 +10,7 @@ def readValves(lines, valves):
         flow_rate = int(raw_data[2])
         connecting_valves = raw_data[3].split(", ")
         valves.update({name: {"flow_rate" : flow_rate, "connections" : connecting_valves}})
-        print(f"Valve {name} flows at {flow_rate} and connects to {connecting_valves}")
+        # print(f"Valve {name} flows at {flow_rate} and connects to {connecting_valves}")
 
 def printGraph(graph):
     print('Graph data:')
@@ -29,19 +29,6 @@ def calcMaxValue(valve_name, openable_valves, distances, time_remaining):
         return 0
 
     attributes = openable_valves.get(valve_name)
-
-    # #Option 1 - Move immediately
-    # max_next_value = 0
-    #
-    # for next_valve_name in openable_valves.keys():
-    #     if next_valve_name == valve_name:
-    #         continue
-    #
-    #     new_time_remaining = time_remaining - distances.get((valve_name, next_valve_name))
-    #     max_next_value = max(max_next_value,
-    #                          calcMaxValue(next_valve_name, openable_valves, distances, new_time_remaining))
-    #
-    # # Option 2 - Open Valve then Move - only if not already open and flow_rate > 0
     flow_rate = attributes.get("flow_rate")
 
     new_openable_valves = openable_valves.copy()
@@ -81,12 +68,12 @@ def part1():
                 path = [target_vertex.get_id()]
                 shortest(target_vertex, path)
 
-                print('The shortest path : %s' % (path[::-1]))
+                # print('The shortest path : %s' % (path[::-1]))
 
                 paths.update({(source_name, target_name): path[::-1]})
                 distances.update({(source_name, target_name): len(path) - 1})
 
-    printPaths(paths, distances)
+    # printPaths(paths, distances)
 
     openable_valves = {}
     for valve_name, attributes in valves.items():
@@ -108,7 +95,55 @@ def part1():
     return calcMaxValue("AA", openable_valves, distances, 31)
 def part2():
     file.seek(0)
-    return
+    lines = [line.rstrip() for line in file]
+
+    valves = {}
+    paths = {}
+    distances = {}
+
+    readValves(lines, valves)
+
+    for source_name in valves.keys():
+        for target_name in valves.keys():
+            if (source_name != target_name):
+                graph = Graph()
+
+                for valve_name, valve_attributes in valves.items():
+                    graph.add_vertex(valve_name)
+                    for connecting_valve in valve_attributes.get("connections"):
+                        graph.add_edge(valve_name, connecting_valve, 1)
+
+                dijkstra(graph, graph.get_vertex(source_name), graph.get_vertex(target_name))
+
+                target_vertex = graph.get_vertex(target_name)
+                path = [target_vertex.get_id()]
+                shortest(target_vertex, path)
+
+                # print('The shortest path : %s' % (path[::-1]))
+
+                paths.update({(source_name, target_name): path[::-1]})
+                distances.update({(source_name, target_name): len(path) - 1})
+
+    # printPaths(paths, distances)
+
+    openable_valves = {}
+    for valve_name, attributes in valves.items():
+        if (valve_name == "AA") or (attributes.get("flow_rate") > 0):
+            openable_valves.update({valve_name: attributes})
+
+    # openable_valves.pop("DD")
+    # openable_valves.pop("BB")
+    # openable_valves.pop("JJ")
+    # openable_valves.pop("HH")
+    # openable_valves.pop("EE")
+
+    # return calcMaxValue("CC", openable_valves, distances, 7)
+    # return calcMaxValue("EE", openable_valves, distances, 10)
+    # return calcMaxValue("HH", openable_valves, distances, 14)
+    # return calcMaxValue("JJ", openable_valves, distances, 22)
+    # return calcMaxValue("BB", openable_valves, distances, 26)
+    # return calcMaxValue("DD", openable_valves, distances, 29)
+    return calcMaxValue("AA", openable_valves, distances, 31)
 
 
 if TESTING:
