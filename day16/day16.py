@@ -1,7 +1,7 @@
 import re
 from dijkstra import *
 
-TESTING = False
+TESTING = True
 
 def readValves(lines, valves):
     for line in lines:
@@ -20,9 +20,9 @@ def printGraph(graph):
             wid = w.get_id()
             print('( %s, %s, %3d)' % (vid, wid, v.get_weight(w)))
 
-def printPaths(paths):
+def printPaths(paths, distances):
     for route, path in paths.items():
-        print(f"{route[0]} -> {route[1]} = {path}")
+        print(f"{route[0]} -> {route[1]} = {path} [Dist {distances.get(route)}]")
 
 def part1():
     file.seek(0)
@@ -30,6 +30,7 @@ def part1():
 
     valves = []
     paths = {}
+    distances = {}
 
     readValves(lines, valves)
 
@@ -58,8 +59,9 @@ def part1():
                 print('The shortest path : %s' % (path[::-1]))
 
                 paths.update({(source_name, target_name) : path[::-1]})
+                distances.update({(source_name, target_name) : len(path)})
 
-    printPaths(paths)
+    printPaths(paths, distances)
     return
 
 def part2():
