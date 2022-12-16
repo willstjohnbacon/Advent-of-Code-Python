@@ -42,12 +42,18 @@ class Vertex:
         return self.distance < other.get_distance()
 
 class Graph:
-    def __init__(self):
-        self.vert_dict = {}
-        self.num_vertices = 0
+    def __init__(self, vert_dict={}, num_vertices=0):
+        self.vert_dict = vert_dict
+        self.num_vertices = num_vertices
 
     def __iter__(self):
         return iter(self.vert_dict.values())
+
+    def copy(self):
+        new_vert_dict = {}
+        for node, vertex in self.vert_dict.items():
+            new_vert_dict.update({node: Vertex(node)})
+        return Graph(new_vert_dict, self.num_vertices)
 
     def add_vertex(self, node):
         self.num_vertices = self.num_vertices + 1
