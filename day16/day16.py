@@ -1,9 +1,19 @@
+import re
+
 TESTING = True
+
+def readValves(lines):
+    for line in lines:
+        raw_data = re.match('Valve (.*?) has flow rate=(.*?); tunnel[s]? lead[s]? to valve[s]? (.*?)$', line)
+        valve = raw_data[1]
+        flow_rate = raw_data[2]
+        connecting_valves = raw_data[3].split()
+        print(f"Valve {valve} flows at {flow_rate} and connects to {connecting_valves}")
 
 def part1():
     file.seek(0)
     lines = [line.rstrip() for line in file]
-    print ("Input lines:", lines)
+    readValves(lines)
     return
 
 def part2():
