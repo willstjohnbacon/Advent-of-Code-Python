@@ -24,9 +24,13 @@ def printPaths(paths, distances):
     for route, path in paths.items():
         print(f"{route[0]} -> {route[1]} = {path} [Dist {distances.get(route)}]")
 
-def calcMaxValue(valve_name, openable_valves, distances, time_remaining):
+def calcMaxValue(valve_name, openable_valves, distances, time_remaining, followed_paths, current_path, pressure_released):
     if (time_remaining <= 0):
+        followed_paths.update({tuple(current_path): pressure_released})
         return 0
+
+    new_path = current_path.copy()
+    new_path.append(valve_name)
 
     attributes = openable_valves.get(valve_name)
     flow_rate = attributes.get("flow_rate")
@@ -35,12 +39,17 @@ def calcMaxValue(valve_name, openable_valves, distances, time_remaining):
     new_openable_valves.pop(valve_name)
 
     max_next_value = 0
+    pressure_released_from_this_valve = flow_rate * (time_remaining - 1)
 
     for next_valve_name in new_openable_valves.keys():
         new_time_remaining = (time_remaining - 1) - distances.get((valve_name, next_valve_name))
-        max_next_value = max(max_next_value, calcMaxValue(next_valve_name, new_openable_valves, distances, new_time_remaining))
+        max_next_value = max(max_next_value, calcMaxValue(next_valve_name, new_openable_valves, distances,
+            new_time_remaining, followed_paths, new_path, (pressure_released + pressure_released_from_this_valve)))
 
-    return max_next_value + (flow_rate * (time_remaining - 1))
+    return max_next_value + pressure_released_from_this_valve
+
+def intersection(tuple1, tuple2):
+    return tuple(set(tuple1) & set(tuple2))
 
 def part1():
     file.seek(0)
@@ -92,7 +101,7 @@ def part1():
     # return calcMaxValue("JJ", openable_valves, distances, 22)
     # return calcMaxValue("BB", openable_valves, distances, 26)
     # return calcMaxValue("DD", openable_valves, distances, 29)
-    return calcMaxValue("AA", openable_valves, distances, 31)
+    return calcMaxValue("AA", openable_valves, distances, 31, {}, [], 0)
 def part2():
     file.seek(0)
     lines = [line.rstrip() for line in file]
@@ -131,8 +140,10 @@ def part2():
         if (valve_name == "AA") or (attributes.get("flow_rate") > 0):
             openable_valves.update({valve_name: attributes})
 
-    #Run calcMaxValue up to 26 secs and capture all paths where the sum is greater than part 1 run for 30 secs
-    #Then check these paths to find two where their intersection is just "AA" and return the total
+    #Run calcMaxValue up to 26 secs and capture all paths.  Then find the pair with the largest sum
+    #where their intersection is just "AA" and return the total
+
+    followed_paths = {}
 
     # openable_valves.pop("DD")
     # openable_valves.pop("BB")
@@ -146,7 +157,26 @@ def part2():
     # return calcMaxValue("JJ", openable_valves, distances, 22)
     # return calcMaxValue("BB", openable_valves, distances, 26)
     # return calcMaxValue("DD", openable_valves, distances, 29)
-    return calcMaxValue("AA", openable_valves, distances, 26)
+    calcMaxValue("AA", openable_valves, distances, 27, followed_paths, [], 0)
+
+    ascending_followed_paths = dict(sorted(followed_paths.items(), key=lambda item: item[1]))
+    descending_followed_paths = dict(sorted(followed_paths.items(), key=lambda item: item[1], reverse=True))
+
+    # print(sorted_followed_paths)
+
+    while len(ascending_followed_paths):
+        my_path, my_released_pressure = ascending_followed_paths.popitem()
+        descending_followed_paths.pop(my_path)
+
+        for elephant_path, elephant_released_pressure in descending_followed_paths.items():
+            intersect = intersection(my_path, elephant_path)
+            print(f"Me: {my_path} [{my_released_pressure}]  Elephant: {elephant_path} [{elephant_released_pressure}]  Intersect: {intersect}")
+
+            if intersection(my_path, elephant_path) == ("AA",):
+                print(f"Me: {my_path} [{my_released_pressure}]  Elephant: {elephant_path} [{elephant_released_pressure}]")
+                return my_released_pressure + elephant_released_pressure
+
+    return "Can not find non-intersecting pair"
 
 
 if TESTING:
@@ -154,5 +184,5 @@ if TESTING:
 else:
     file = open("input.txt", "r")
 
-print("Part 1: ", part1())
+# print("Part 1: ", part1())
 print("Part 2: ", part2())
