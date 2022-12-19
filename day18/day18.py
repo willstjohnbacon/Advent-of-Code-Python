@@ -59,10 +59,6 @@ def part1(cubes):
     for x in range(0, len(surfaces)):
         for y in range(0, len(surfaces[x])):
             for z in range(0, len(surfaces[x][y])):
-                if surfaces[x][y][z] == 6:
-                    print("ERROR:", (x, y, z))
-                    # exit(1)
-
                 surface_area += surfaces[x][y][z]
 
     return surface_area
