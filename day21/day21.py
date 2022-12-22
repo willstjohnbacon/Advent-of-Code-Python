@@ -44,10 +44,14 @@ def solve (y, monkey1, monkey2, operation, yells, jobs):
         next_monkey_job = jobs.get(next_monkey)
 
         match operation:
-            case "+": return solve(y - known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "*": return solve(y // known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "-": return solve(y + known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "/": return solve(y * known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "+": return solve(y - known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "*": return solve(y // known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "-": return solve(y + known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "/": return solve(y * known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
 
     elif not monkey2_yell:
         known_monkey_yell = monkey1_yell
@@ -66,12 +70,16 @@ def solve (y, monkey1, monkey2, operation, yells, jobs):
         next_monkey_job = jobs.get(next_monkey)
 
         match operation:
-            case "+": return solve(y - known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "*": return solve(y // known_monkey_yell, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "-": return solve(known_monkey_yell - y, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
-            case "/": return solve(known_monkey_yell // y, next_monkey_job.get("monkey1"), next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "+": return solve(y - known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "*": return solve(y // known_monkey_yell, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "-": return solve(known_monkey_yell - y, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
+            case "/": return solve(known_monkey_yell // y, next_monkey_job.get("monkey1"),
+                                   next_monkey_job.get("monkey2"), next_monkey_job.get("operation"), yells, jobs)
 
-def part1():
+def readInputData():
     file.seek(0)
     lines = [line.rstrip() for line in file]
 
@@ -95,6 +103,11 @@ def part1():
     # print(yells)
     # print(jobs)
 
+    return yells, jobs
+
+def part1():
+    yells, jobs = readInputData()
+
     while (not "root" in yells):
         for monkey_name, job in jobs.items():
             monkey1 = job.get("monkey1")
@@ -109,25 +122,7 @@ def part1():
     return yells.get("root")
 
 def part2():
-    file.seek(0)
-    lines = [line.rstrip() for line in file]
-
-    yells = {}
-    jobs = {}
-
-    for line in lines:
-        monkey_data = re.match('(.*?): (.*?)$', line)
-        monkey_name = monkey_data[1]
-
-        yell_num = re.match('(\d*?)$', monkey_data[2])
-
-        if (yell_num):
-            # print(f"Monkey {monkey_name} yells {yell_num[1]}")
-            yells.update({monkey_name: int(yell_num[1])})
-        else:
-            job_data = re.match('(.*?) ([+-/*]) (.*?)$', monkey_data[2])
-            # print(f"Monkey {monkey_name} calculates {job_data[1]} {job_data[2]} {job_data[3]}")
-            jobs.update({monkey_name: {"monkey1": job_data[1], "operation": job_data[2], "monkey2": job_data[3]}})
+    yells, jobs = readInputData()
 
     yells.pop("humn")
     root_job = jobs.pop("root")
