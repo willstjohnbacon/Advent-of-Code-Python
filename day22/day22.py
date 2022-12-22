@@ -1,6 +1,6 @@
 import re
 
-TESTING = True
+TESTING = False
 PART1 = True
 
 orientation = ["East", "South", "West", "North"]
@@ -52,6 +52,86 @@ def getAdjacentPos(map, current_pos, facing):
 
     return (next_posY, next_posX)
 
+def getAdjacentPosOnCube(current_pos, facing):
+    current_posY, current_posX = current_pos
+    next_posY, next_posX = current_pos
+    next_facing = facing
+
+    next_posY = (next_posY + movement[facing][0])
+    next_posX = (next_posX + movement[facing][1])
+
+    # Map is this shape:
+    #   A B
+    #   C
+    # D E
+    # F
+
+    if current_posY <= 49: # A and B
+        if (next_posY == -1) and (next_posX < 100): # A top to F left
+            next_posY = next_posX + 100
+            next_posX = 0
+            next_facing = 0
+        elif (next_posY == -1) and (next_posX >= 100): # B top to F bottom
+            next_posX = next_posX - 100
+            next_posY = 199
+            next_facing = 3
+        elif (next_posY == 50) and (next_posX >= 100):  # B bottom to C right
+            next_posY = next_posX - 50
+            next_posX = 99
+            next_facing = 2
+        elif next_posX == 49: # A left to D left
+            next_posY = 149 - next_posY
+            next_posX = 0
+            next_facing = 0
+        elif next_posX == 150: # B right to E right +
+            next_posY = 149 - next_posY
+            next_posX = 99
+            next_facing = 2
+
+    elif 50 <= current_posY <= 99: # C
+        if next_posX == 49: # C left to D top
+            next_posX = next_posY - 50
+            next_posY = 100
+            next_facing = 1
+        elif next_posX == 100: # C right to B bottom +
+            next_posX = next_posY + 50
+            next_posY = 49
+            next_facing = 3
+
+    elif 100 <= current_posY <= 149: # D and E
+        if next_posX == -1: # D left to A left
+            next_posY = 149 - next_posY
+            next_posX = 50
+            next_facing = 0
+        elif next_posX == 100: # E right to B right +
+            next_posY = 149 - next_posY
+            next_posX = 149
+            next_facing = 2
+        elif (next_posY == 99) and (next_posX < 50): # D top to C left
+            next_posY = next_posX + 50
+            next_posX = 50
+            next_facing = 0
+        elif (next_posY == 150) and (next_posX >= 50): # E bottom to F right
+            next_posY = next_posX + 100
+            next_posX = 49
+            next_facing = 2
+
+    elif current_posY >= 150: # F
+        if next_posX == -1: # F left to A top
+            next_posX = next_posY - 100
+            next_posY = 0
+            next_facing = 1
+        elif next_posX == 50: # F right to E bottom +
+            next_posX = next_posY - 100
+            next_posY = 149
+            next_facing = 3
+        elif next_posY == 200: # F bottom to B top
+            next_posX = next_posX + 100
+            next_posY = 0
+            next_facing = 1
+
+    return (next_posY, next_posX), next_facing
+
 def getAdjacentPosOnCubeTesting(current_pos, facing):
     current_posY, current_posX = current_pos
     next_posY, next_posX = current_pos
@@ -64,7 +144,7 @@ def getAdjacentPosOnCubeTesting(current_pos, facing):
         if next_posY == -1:
             next_posX = 11 - next_posX
             next_posY = 4
-            facing = 1
+            next_facing = 1
         elif next_posX == 7:
             next_posX = 4 + next_posY
             next_posY = 4
@@ -136,6 +216,8 @@ def move(map, current_pos, distance, facing):
         else:
             if TESTING:
                 next_pos, next_facing = getAdjacentPosOnCubeTesting(next_pos, next_facing)
+            else:
+                next_pos, next_facing = getAdjacentPosOnCube(next_pos, next_facing)
 
         if map[next_pos[0]][next_pos[1]] != ".":
             print(f"New position: {new_pos} facing {new_facing}")
@@ -212,7 +294,7 @@ def part2():
     final_posY = (final_posY + 1)
     final_posX = (final_posX + 1)
 
-    print(f"Final position (zero-indexed): {(final_posY, final_posX)} facing {facing}")
+    print(f"Final position (1-indexed): {(final_posY, final_posX)} facing {facing}")
 
     return calcPassword((final_posY, final_posX), facing)
 
