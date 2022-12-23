@@ -116,7 +116,6 @@ def part2():
     round_num = 0
     elf_moved = True
 
-### Adjust to run until no elves moved
     while elf_moved:
         round_num += 1
 
