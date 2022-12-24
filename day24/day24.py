@@ -81,11 +81,12 @@ def coincidentalBlizzardOrWall(turn_num, posY, posX, vertical_blizzards, horizon
 #
 #     return min_turns
 
-def getMinTurns(positions, start_pos, end_pos, vertical_blizzards, horizontal_blizzards,
+def getMinTurns(starting_turn, start_pos, end_pos, vertical_blizzards, horizontal_blizzards,
                 valley_length, valley_width):
     check_positions = deque([(1, 0), (0, 1), (0, -1), (-1, 0), (0, 0)])
 
-    turn_num = 0
+    positions = deque([(starting_turn, start_pos)])
+    turn_num = starting_turn
 
     while positions and (turn_num < 1000):
         turn_num, current_pos = positions.popleft()
@@ -123,14 +124,17 @@ def part1():
 
     print(f"Valley is {valley_length} long by {valley_width} wide")
 
-    positions = deque([(0, start_pos)])
-
-    return getMinTurns(positions, start_pos, end_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
-    # return getMinTurns(start_pos, end_pos, 0, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
+    return getMinTurns(0, start_pos, end_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
 
 def part2():
-    file.seek(0)
-    return
+    vertical_blizzards, horizontal_blizzards,\
+        valley_length, valley_width, start_pos, end_pos = readInput()
+
+    print(f"Valley is {valley_length} long by {valley_width} wide")
+
+    start_to_end1_turns = getMinTurns(0, start_pos, end_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
+    end_to_start_turns = getMinTurns(start_to_end1_turns, end_pos, start_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
+    return getMinTurns(end_to_start_turns, start_pos, end_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
 
 
 if TESTING:
