@@ -55,32 +55,6 @@ def coincidentalBlizzardOrWall(turn_num, posY, posX, vertical_blizzards, horizon
 
     return False
 
-# def getMinTurns(current_pos, destination, turn_num, vertical_blizzards, horizontal_blizzards, valley_length, valley_width):
-#     if current_pos == destination:
-#         return turn_num
-#
-#     currentY, currentX = current_pos
-#
-#     check_positions = [(1, 0), (0, 1), (0, -1), (-1, 0), (0, 0)]
-#     potential_next_positions = []
-#
-#     for offsetY, offsetX in check_positions:
-#         checkY = currentY + offsetY
-#         checkX = currentX + offsetX
-#
-#         if coincidentalBlizzardOrWall(turn_num + 1, checkY, checkX, vertical_blizzards,
-#                                       horizontal_blizzards, valley_length, valley_width):
-#             continue
-#
-#         potential_next_positions.append((checkY, checkX))
-#
-#     min_turns = float('inf')
-#     for position in potential_next_positions:
-#         min_turns = min(min_turns, 1 + getMinTurns(position, destination, turn_num + 1, vertical_blizzards,
-#                                                horizontal_blizzards, valley_length, valley_width))
-#
-#     return min_turns
-
 def getMinTurns(starting_turn, start_pos, end_pos, vertical_blizzards, horizontal_blizzards,
                 valley_length, valley_width):
     check_positions = deque([(1, 0), (0, 1), (0, -1), (-1, 0), (0, 0)])
@@ -90,7 +64,7 @@ def getMinTurns(starting_turn, start_pos, end_pos, vertical_blizzards, horizonta
 
     while positions and (turn_num < 1000):
         turn_num, current_pos = positions.popleft()
-        print(f"Turn num {turn_num}, position {current_pos}")
+        # print(f"Turn num {turn_num}, position {current_pos}")
 
         currentY, currentX = current_pos
 
@@ -130,7 +104,7 @@ def part2():
     vertical_blizzards, horizontal_blizzards,\
         valley_length, valley_width, start_pos, end_pos = readInput()
 
-    print(f"Valley is {valley_length} long by {valley_width} wide")
+    # print(f"Valley is {valley_length} long by {valley_width} wide")
 
     start_to_end1_turns = getMinTurns(0, start_pos, end_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
     end_to_start_turns = getMinTurns(start_to_end1_turns, end_pos, start_pos, vertical_blizzards, horizontal_blizzards, valley_length, valley_width)
