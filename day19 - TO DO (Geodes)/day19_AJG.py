@@ -232,8 +232,24 @@ def part1():
     return sum(quality_levels)
 
 def part2():
-    file.seek(0)
-    return
+    MINING_MINS = 32
+    blueprints = readBlueprints()
+
+    blueprintProduct = 1
+
+    for blueprint_num, blueprint in enumerate(blueprints[:3]):
+        max_bots_required = determineMaxBotsRequired(blueprint)
+        bots = [1, 0, 0, 0]
+        resources = [0, 0, 0, 0]
+
+        max_geodes, log = maxGeodes(blueprint, MINING_MINS, 0, bots, resources, max_bots_required, [], [])
+
+        # printLog(log)
+        print(f"Blueprint {blueprint_num + 1} can produce {max_geodes} geodes")
+
+        blueprintProduct *= max_geodes
+
+    return blueprintProduct
 
 
 if TESTING:
