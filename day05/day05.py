@@ -48,15 +48,8 @@ def drop(stacks, crane_stack, crates_to_drop, stack_num):
     for crate in range(0, crates_to_drop):
         stacks[stack_num].append(crane_stack.pop())
 
-def part1():
-    stacks, move_ops = read_input()
-
-    print(f"Stacks: {stacks}")
-    print(f"Move Ops: {move_ops}")
-    print()
-
+def move_crates(move_ops, stacks):
     crane_stack = []
-
     for num_crates, from_stack, to_stack in move_ops:
         print(f"Moving {num_crates} from {from_stack} to {to_stack}")
 
@@ -66,21 +59,7 @@ def part1():
 
         print(stacks)
 
-    answer = ''
-
-    for stack in stacks:
-        answer += stack[len(stack) - 1]
-
-    return answer
-
-
-def part2():
-    stacks, move_ops = read_input()
-
-    print(f"Stacks: {stacks}")
-    print(f"Move Ops: {move_ops}")
-    print()
-
+def move_crates_multi(move_ops, stacks):
     crane_stack = []
 
     for num_crates, from_stack, to_stack in move_ops:
@@ -91,12 +70,38 @@ def part2():
 
         print(stacks)
 
+    return stacks
+
+def get_top_crates(stacks):
     answer = ''
 
     for stack in stacks:
         answer += stack[len(stack) - 1]
 
     return answer
+
+def part1():
+    stacks, move_ops = read_input()
+
+    print(f"Stacks: {stacks}")
+    print(f"Move Ops: {move_ops}")
+    print()
+
+    move_crates(move_ops, stacks)
+
+    return get_top_crates(stacks)
+
+
+def part2():
+    stacks, move_ops = read_input()
+
+    print(f"Stacks: {stacks}")
+    print(f"Move Ops: {move_ops}")
+    print()
+
+    move_crates_multi(move_ops, stacks)
+
+    return get_top_crates(stacks)
 
 
 if TESTING:
