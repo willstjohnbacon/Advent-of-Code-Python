@@ -9,12 +9,19 @@ from Dock import Dock
 
 TESTING = True
 KEYPRESS_REQUIRED_BETWEEN_MOVES = -1   # -1 for YES, 0 for NO
+
 X = 0
 Y = 1
+
+LIFT = 1
+ALIGN = 0
+DROP = -1
+
 DOCK_OFFSET = 3
 LABEL_OFFSET = 1
 COMMENTARY_OFFSET = 2
 CRANE_TOP = 20
+
 
 class MovingCrate(Sprite):
     """
@@ -49,54 +56,46 @@ def print_stacks(screen, dock_left, stacks_top, stacks):
         stop_frame=5)
 
 
-def add_crate_lift_effect(screen, scenes, stacks, crane_stack, crates_to_lift, stack_num):
+def add_crane_animation_scene(screen, scenes, movement, stacks, crane_stack, num_crates, from_stack, to_stack):
     max_stack_height = max(map(len, stacks))
     dock_width = len(stacks) * 4
     dock_left = (screen.width - dock_width) // 2
     dock_floor = screen.height - DOCK_OFFSET
     stacks_top = dock_floor - max_stack_height
 
-    stack = stacks[stack_num]
+    stack = stacks[from_stack if movement == LIFT else to_stack]
     stack_height = len(stack)
-    crate = stack[stack_height - 1]
 
-    start_pos_y = dock_floor - LABEL_OFFSET - stack_height
-    start_pos_x = dock_left + (stack_num * 4)
+    if movement == LIFT:
+        crate = stack[stack_height - 1]
 
-    end_pos_x = start_pos_x
-    end_pos_y = CRANE_TOP + len(crane_stack)
-    steps = abs(start_pos_y - end_pos_y)
+        start_pos_y = dock_floor - LABEL_OFFSET - stack_height
+        start_pos_x = dock_left + (from_stack * 4)
 
-    path = Path()
-    path.jump_to(start_pos_x, start_pos_y)
-    path.move_straight_to(end_pos_x, end_pos_y, steps)
-    path.wait(100)
+        end_pos_x = start_pos_x
+        end_pos_y = CRANE_TOP + len(crane_stack)
 
-    final_frame = (steps * 5) + 5
+        steps = abs(start_pos_y - end_pos_y)
+    elif movement == DROP:
+        crate = crane_stack[len(crane_stack) - 1]
 
-    effects = [print_stacks(screen, dock_left, stacks_top, stacks),
-               MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
+        start_pos_y = CRANE_TOP + len(crane_stack) - 1
+        start_pos_x = dock_left + (to_stack * 4)
 
-    scenes.append(Scene(effects, clear=False))
+        end_pos_x = start_pos_x
+        end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
 
+        steps = abs(start_pos_y - end_pos_y)
+    else:  #ALIGN
+        crate = crane_stack[len(crane_stack) - 1]
 
-def add_crate_drop_effect(screen, scenes, stacks, crane_stack, crates_to_lift, stack_num):
-    max_stack_height = max(map(len, stacks))
-    dock_width = len(stacks) * 4
-    dock_left = (screen.width - dock_width) // 2
-    dock_floor = screen.height - DOCK_OFFSET
-    stacks_top = dock_floor - max_stack_height
+        start_pos_y = CRANE_TOP + len(crane_stack) - 1
+        start_pos_x = dock_left + (from_stack * 4)
 
-    stack = stacks[stack_num]
-    stack_height = len(stack)
-    crate = crane_stack[len(crane_stack) - 1]
+        end_pos_x = dock_left + (to_stack * 4)
+        end_pos_y = start_pos_y
 
-    start_pos_y = CRANE_TOP + len(crane_stack) - 1
-    start_pos_x = dock_left + (stack_num * 4)
-
-    end_pos_x = start_pos_x
-    end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
-    steps = abs(start_pos_y - end_pos_y)
+        steps = abs(start_pos_x - end_pos_x)
 
     path = Path()
     path.jump_to(start_pos_x, start_pos_y)
@@ -108,35 +107,7 @@ def add_crate_drop_effect(screen, scenes, stacks, crane_stack, crates_to_lift, s
     effects = [print_stacks(screen, dock_left, stacks_top, stacks),
                MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
 
-    scenes.append(Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES))
-
-
-def add_crate_align_effect(screen, scenes, stacks, crane_stack, num_crates, from_stack, to_stack):
-    max_stack_height = max(map(len, stacks))
-    dock_width = len(stacks) * 4
-    dock_left = (screen.width - dock_width) // 2
-    dock_floor = screen.height - DOCK_OFFSET
-    stacks_top = dock_floor - max_stack_height
-
-    crate = crane_stack[len(crane_stack) - 1]
-
-    start_pos_y = CRANE_TOP + len(crane_stack) - 1
-    start_pos_x = dock_left + (from_stack * 4)
-    end_pos_x = dock_left + (to_stack * 4)
-    end_pos_y = start_pos_y
-    steps = abs(start_pos_x - end_pos_x)
-
-    path = Path()
-    path.jump_to(start_pos_x, start_pos_y)
-    path.move_straight_to(end_pos_x, end_pos_y, steps)
-    path.wait(100)
-
-    final_frame = (steps * 5) + 5
-
-    effects = [print_stacks(screen, dock_left, stacks_top, stacks),
-               MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
-
-    scenes.append(Scene(effects, clear=False))
+    scenes.append(Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES if movement == DROP else 0))
 
 
 def draw_commentary(screen, message):
@@ -217,12 +188,12 @@ def drop(stacks, crane_stack, crates_to_drop, stack_num):
 
 
 def move(screen, scenes, stacks, crane_stack, num_crates, from_stack, to_stack):
-    add_crate_lift_effect(screen, scenes, stacks, crane_stack, num_crates, from_stack)
+    add_crane_animation_scene(screen, scenes, LIFT, stacks, crane_stack, num_crates, from_stack, to_stack)
     lift(stacks, crane_stack, num_crates, from_stack)
 
-    add_crate_align_effect(screen, scenes, stacks, crane_stack, num_crates, from_stack, to_stack)
+    add_crane_animation_scene(screen, scenes, ALIGN, stacks, crane_stack, num_crates, from_stack, to_stack)
 
-    add_crate_drop_effect(screen, scenes, stacks, crane_stack, num_crates, to_stack)
+    add_crane_animation_scene(screen, scenes, DROP, stacks, crane_stack, num_crates, from_stack, to_stack)
     drop(stacks, crane_stack, num_crates, to_stack)
 
 def rearrange_crates(screen, scenes, stacks, crane_stack, move_ops):
