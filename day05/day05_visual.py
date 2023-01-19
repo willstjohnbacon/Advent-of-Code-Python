@@ -68,7 +68,6 @@ def add_crate_lift_effect(screen, scenes, stacks, crane_stack, crates_to_lift, s
     end_pos_y = CRANE_TOP + len(crane_stack)
     steps = abs(start_pos_y - end_pos_y)
 
-    # Scene 1.
     path = Path()
     path.jump_to(start_pos_x, start_pos_y)
     path.move_straight_to(end_pos_x, end_pos_y, steps)
@@ -80,7 +79,6 @@ def add_crate_lift_effect(screen, scenes, stacks, crane_stack, crates_to_lift, s
                MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
 
     scenes.append(Scene(effects, clear=False))
-    # return final_frame + 1
 
 
 def add_crate_drop_effect(screen, scenes, stacks, crane_stack, crates_to_lift, stack_num):
@@ -101,7 +99,6 @@ def add_crate_drop_effect(screen, scenes, stacks, crane_stack, crates_to_lift, s
     end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
     steps = abs(start_pos_y - end_pos_y)
 
-    # Scene 1.
     path = Path()
     path.jump_to(start_pos_x, start_pos_y)
     path.move_straight_to(end_pos_x, end_pos_y, steps)
@@ -113,7 +110,6 @@ def add_crate_drop_effect(screen, scenes, stacks, crane_stack, crates_to_lift, s
                MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
 
     scenes.append(Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES))
-    # return final_frame + 1
 
 
 def add_crate_align_effect(screen, scenes, stacks, crane_stack, num_crates, from_stack, to_stack):
@@ -131,7 +127,6 @@ def add_crate_align_effect(screen, scenes, stacks, crane_stack, num_crates, from
     end_pos_y = start_pos_y
     steps = abs(start_pos_x - end_pos_x)
 
-    # Scene 1.
     path = Path()
     path.jump_to(start_pos_x, start_pos_y)
     path.move_straight_to(end_pos_x, end_pos_y, steps)
@@ -143,7 +138,6 @@ def add_crate_align_effect(screen, scenes, stacks, crane_stack, num_crates, from
                MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
 
     scenes.append(Scene(effects, clear=False))
-    # return final_frame + 1
 
 
 def draw_commentary(screen, message):
@@ -260,8 +254,6 @@ def get_top_crates(stacks):
 
 def part1(screen):
     stacks, move_ops = read_input()
-
-    # draw_stacks(screen, stacks)
 
     scenes = []
 
