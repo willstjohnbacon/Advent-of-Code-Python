@@ -7,8 +7,9 @@ import re
 
 from Dock import Dock
 
-TESTING = True
-KEYPRESS_REQUIRED_BETWEEN_MOVES = -1   # -1 for YES, 0 for NO
+TESTING = False
+KEYPRESS_REQUIRED_BETWEEN_MOVES = -1 if TESTING else 0  # -1 for YES, 0 for NO
+# KEYPRESS_REQUIRED_BETWEEN_MOVES = 0
 
 X = 0
 Y = 1
@@ -19,8 +20,8 @@ DROP = -1
 
 DOCK_OFFSET = 3
 LABEL_OFFSET = 1
-COMMENTARY_OFFSET = 2
-CRANE_TOP = 20
+COMMENTARY_OFFSET = 1
+CRANE_TOP = 20 if TESTING else 2
 
 
 class MovingCrate(Sprite):
@@ -56,7 +57,30 @@ def print_stacks(screen, dock_left, stacks_top, stacks):
         stop_frame=5)
 
 
-def add_crane_animation_scene(screen, scenes, movement, stacks, crane_stack, num_crates, from_stack, to_stack):
+def print_description(screen, dock_floor, description):
+    x_pos = (screen.width - len(description)) // 2 - 1
+
+    return Print(
+        screen,
+        StaticRenderer([description]),
+        x=x_pos, y=dock_floor + COMMENTARY_OFFSET,
+        colour=Screen.COLOUR_WHITE,
+        clear=False,
+        transparent=False,
+        start_frame=0,
+        stop_frame=5)
+
+
+def calculate_path(start_pos_x, start_pos_y, end_pos_x, end_pos_y, steps):
+    path = Path()
+    path.jump_to(start_pos_x, start_pos_y)
+    path.move_straight_to(end_pos_x, end_pos_y, steps)
+    path.wait(100)
+    return path
+
+
+def add_crane_animation_scene(screen, scenes, description, movement, stacks, crane_stack, num_crates, from_stack,
+                              to_stack):
     max_stack_height = max(map(len, stacks))
     dock_width = len(stacks) * 4
     dock_left = (screen.width - dock_width) // 2
@@ -86,7 +110,7 @@ def add_crane_animation_scene(screen, scenes, movement, stacks, crane_stack, num
         end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
 
         steps = abs(start_pos_y - end_pos_y)
-    else:  #ALIGN
+    else:  # ALIGN
         crate = crane_stack[len(crane_stack) - 1]
 
         start_pos_y = CRANE_TOP + len(crane_stack) - 1
@@ -95,29 +119,18 @@ def add_crane_animation_scene(screen, scenes, movement, stacks, crane_stack, num
         end_pos_x = dock_left + (to_stack * 4)
         end_pos_y = start_pos_y
 
-        steps = abs(start_pos_x - end_pos_x)
-
-    path = Path()
-    path.jump_to(start_pos_x, start_pos_y)
-    path.move_straight_to(end_pos_x, end_pos_y, steps)
-    path.wait(100)
+        steps = abs(start_pos_x - end_pos_x) // 3
 
     final_frame = (steps * 5) + 5
 
-    effects = [print_stacks(screen, dock_left, stacks_top, stacks),
-               MovingCrate(screen, path, f"[{crate}]", start_frame=6, stop_frame=final_frame)]
+    path = calculate_path(start_pos_x, start_pos_y, end_pos_x, end_pos_y, steps)
+
+    effects = [print_description(screen, dock_floor, description),
+               print_stacks(screen, dock_left, stacks_top, stacks),
+               MovingCrate(screen, path, f"[{crate}]", start_frame=5, stop_frame=final_frame)]
 
     scenes.append(Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES if movement == DROP else 0))
 
-
-def draw_commentary(screen, message):
-    message_row = screen.height - DOCK_OFFSET + COMMENTARY_OFFSET
-
-    screen.clear_buffer(Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK, 0, message_row, screen.width, 1)
-
-    screen.print_at(message, (screen.width - len(message)) // 2, message_row)
-
-    screen.refresh()
 
 def is_stack_line(line):
     return "[" in line
@@ -187,28 +200,29 @@ def drop(stacks, crane_stack, crates_to_drop, stack_num):
         stacks[stack_num].append(crane_stack.pop())
 
 
-def move(screen, scenes, stacks, crane_stack, num_crates, from_stack, to_stack):
-    add_crane_animation_scene(screen, scenes, LIFT, stacks, crane_stack, num_crates, from_stack, to_stack)
+def move(screen, scenes, description, stacks, crane_stack, num_crates, from_stack, to_stack):
+    add_crane_animation_scene(screen, scenes, description, LIFT, stacks, crane_stack, num_crates, from_stack, to_stack)
     lift(stacks, crane_stack, num_crates, from_stack)
 
-    add_crane_animation_scene(screen, scenes, ALIGN, stacks, crane_stack, num_crates, from_stack, to_stack)
+    add_crane_animation_scene(screen, scenes, description, ALIGN, stacks, crane_stack, num_crates, from_stack, to_stack)
 
-    add_crane_animation_scene(screen, scenes, DROP, stacks, crane_stack, num_crates, from_stack, to_stack)
+    add_crane_animation_scene(screen, scenes, description, DROP, stacks, crane_stack, num_crates, from_stack, to_stack)
     drop(stacks, crane_stack, num_crates, to_stack)
+
 
 def rearrange_crates(screen, scenes, stacks, crane_stack, move_ops):
     for num_crates, from_stack, to_stack in move_ops:
-        draw_commentary(screen, f"Moving {num_crates} from {from_stack} to {to_stack}")
+        description = f"Moving {num_crates} from {from_stack} to {to_stack}"
 
         for crate in range(0, num_crates):
-            move(screen, scenes, stacks, crane_stack, 1, from_stack - 1, to_stack - 1)
+            move(screen, scenes, description, stacks, crane_stack, 1, from_stack - 1, to_stack - 1)
 
 
 def rearrange_crates_with_CrateMover_9001(screen, scenes, stacks, crane_stack, move_ops):
     for num_crates, from_stack, to_stack in move_ops:
-        draw_commentary(screen, f"Moving {num_crates} from {from_stack} to {to_stack}")
+        description = f"Moving {num_crates} from {from_stack} to {to_stack}"
 
-        move(screen, scenes, stacks, crane_stack, num_crates, from_stack - 1, to_stack - 1)
+        move(screen, scenes, description, stacks, crane_stack, num_crates, from_stack - 1, to_stack - 1)
 
     return stacks
 
@@ -228,10 +242,22 @@ def part1(screen):
     scenes = []
 
     rearrange_crates(screen, scenes, stacks, [], move_ops)
+    top_crates = get_top_crates(stacks)
+
+    max_stack_height = max(map(len, stacks))
+    dock_width = len(stacks) * 4
+    dock_left = (screen.width - dock_width) // 2
+    dock_floor = screen.height - DOCK_OFFSET
+    stacks_top = dock_floor - max_stack_height
+
+    effects = [print_description(screen, dock_floor, f"     The top crates are {top_crates}     "),
+               print_stacks(screen, dock_left, stacks_top, stacks)]
+
+    scenes.append(Scene(effects, clear=False, duration=-1))
 
     screen.play(scenes, stop_on_resize=True, repeat=False)
 
-    return get_top_crates(stacks)
+    return top_crates
 
 
 # def part2():
@@ -250,6 +276,5 @@ if TESTING:
     file = open("sampleInput.txt", "r")
 else:
     file = open("input.txt", "r")
-
 
 Screen.wrapper(part1)

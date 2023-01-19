@@ -4,16 +4,10 @@ This module implements a renderer that draws stacks of crates on a dock.
 """
 from asciimatics.renderers.base import StaticRenderer
 
-X = 0
-Y = 1
-DOCK_OFFSET = 3
-LABEL_OFFSET = 1
-COMMENTARY_OFFSET = 2
-
 
 class Dock(StaticRenderer):
     """
-    Renders stacks of crates on a dock.
+    Renders stacks of crates on a dock
     """
 
     def __init__(self, stacks):
@@ -21,9 +15,10 @@ class Dock(StaticRenderer):
         :param stacks: The stacks of crates to be drawn on the dock
         """
         super(Dock, self).__init__()
-        crates = render_crates(stacks)
         labels = render_labels(stacks)
+        crates = render_crates(stacks)
         self._images = [crates + labels]
+
 
 def render_labels(stacks):
     labels = ""
@@ -32,6 +27,7 @@ def render_labels(stacks):
         labels += f" {n + 1}  "
 
     return labels
+
 
 def render_crates(stacks):
     max_height = max(map(len, stacks))
