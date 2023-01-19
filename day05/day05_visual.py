@@ -14,11 +14,11 @@ Y = 1
 DOCK_OFFSET = 3
 LABEL_OFFSET = 1
 COMMENTARY_OFFSET = 2
+CRANE_TOP = 20
 
 class Plot(Sprite):
     """
-    Sample Sprite that simply plots an "X" for each step in the path.  Useful
-    for plotting a path to the screen.
+    Plots a crate moving along the given path.
     """
 
     def __init__(self, screen, path, crate="[ ]", colour=Screen.COLOUR_WHITE, start_frame=0,
@@ -56,8 +56,7 @@ class Plot(Sprite):
 #             screen.print_at(f"[{crate}]", x_pos, y_pos)
 
 
-def draw_stacks(screen, stacks):
-    return
+# def draw_stacks(screen, stacks):
     # dock_width = len(stacks) * 4
     # dock_height = screen.height - DOCK_OFFSET
     # dock_start = ((screen.width - dock_width) // 2, dock_height)
@@ -71,11 +70,11 @@ def draw_stacks(screen, stacks):
     # screen.refresh()
     # sleep(3) # replace with press key
 
-def print_stacks(screen, dock_left, dock_top, stacks):
+def print_stacks(screen, dock_left, stacks_top, stacks):
     return Print(
         screen,
         Dock(stacks),
-        x=dock_left - 1, y=dock_top - 1,
+        x=dock_left - 1, y=stacks_top - 1,
         colour=Screen.COLOUR_CYAN,
         clear=False,
         start_frame=0,
@@ -83,29 +82,101 @@ def print_stacks(screen, dock_left, dock_top, stacks):
 
 
 def animate_crate_lift(screen, stacks, crane_stack, crates_to_lift, stack_num):
+    max_stack_height = max(map(len, stacks))
     dock_width = len(stacks) * 4
     dock_left = (screen.width - dock_width) // 2
-    dock_bottom = screen.height - DOCK_OFFSET
-    max_stack_height = max(map(len, stacks))
-    dock_top = dock_bottom - max_stack_height
+    dock_floor = screen.height - DOCK_OFFSET
+    stacks_top = dock_floor - max_stack_height
 
     stack = stacks[stack_num]
     stack_height = len(stack)
     crate = stack[stack_height - 1]
-    crate_pos_y = dock_bottom - LABEL_OFFSET - stack_height
-    crate_pos_x = dock_left + (stack_num * 4)
+
+    start_pos_y = dock_floor - LABEL_OFFSET - stack_height
+    start_pos_x = dock_left + (stack_num * 4)
+
+    end_pos_x = start_pos_x
+    end_pos_y = CRANE_TOP + len(crane_stack)
+    steps = abs(start_pos_y - end_pos_y)
 
     scenes = []
 
     # Scene 1.
     path = Path()
-    path.jump_to(crate_pos_x, crate_pos_y)
-    path.move_straight_to(crate_pos_x, crate_pos_y - 10, 10)
-    path.wait(30)
+    path.jump_to(start_pos_x, start_pos_y)
+    path.move_straight_to(end_pos_x, end_pos_y, steps)
+    path.wait(100)
 
     effects = [
-        print_stacks(screen, dock_left, dock_top, stacks),
-        Plot(screen, path, f"[{crate}]", start_frame=10, stop_frame=300)
+        print_stacks(screen, dock_left, stacks_top, stacks),
+        Plot(screen, path, f"[{crate}]", start_frame=10, stop_frame=steps * 5)
+    ]
+
+    scenes.append(Scene(effects))
+    screen.play(scenes, stop_on_resize=True, repeat=False)
+
+
+def animate_crate_drop(screen, stacks, crane_stack, crates_to_lift, stack_num):
+    max_stack_height = max(map(len, stacks))
+    dock_width = len(stacks) * 4
+    dock_left = (screen.width - dock_width) // 2
+    dock_floor = screen.height - DOCK_OFFSET
+    stacks_top = dock_floor - max_stack_height
+
+    stack = stacks[stack_num]
+    stack_height = len(stack)
+    crate = crane_stack[len(crane_stack) - 1]
+
+    start_pos_y = CRANE_TOP + len(crane_stack)
+    start_pos_x = dock_left + (stack_num * 4)
+
+    end_pos_x = start_pos_x
+    end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
+    steps = abs(start_pos_y - end_pos_y)
+
+    scenes = []
+
+    # Scene 1.
+    path = Path()
+    path.jump_to(start_pos_x, start_pos_y)
+    path.move_straight_to(end_pos_x, end_pos_y, steps)
+    path.wait(100)
+
+    effects = [
+        print_stacks(screen, dock_left, stacks_top, stacks),
+        Plot(screen, path, f"[{crate}]", start_frame=10, stop_frame=steps * 5)
+    ]
+
+    scenes.append(Scene(effects))
+    screen.play(scenes, stop_on_resize=True, repeat=False)
+
+
+def animate_crate_align(screen, stacks, crane_stack, num_crates, from_stack, to_stack):
+    max_stack_height = max(map(len, stacks))
+    dock_width = len(stacks) * 4
+    dock_left = (screen.width - dock_width) // 2
+    dock_floor = screen.height - DOCK_OFFSET
+    stacks_top = dock_floor - max_stack_height
+
+    crate = crane_stack[len(crane_stack) - 1]
+
+    start_pos_y = CRANE_TOP + len(crane_stack) - 1
+    start_pos_x = dock_left + (from_stack * 4)
+    end_pos_x = dock_left + (to_stack * 4)
+    end_pos_y = start_pos_y
+    steps = abs(start_pos_x - end_pos_x)
+
+    scenes = []
+
+    # Scene 1.
+    path = Path()
+    path.jump_to(start_pos_x, start_pos_y)
+    path.move_straight_to(end_pos_x, end_pos_y, steps)
+    path.wait(100)
+
+    effects = [
+        print_stacks(screen, dock_left, stacks_top, stacks),
+        Plot(screen, path, f"[{crate}]", start_frame=10, stop_frame=steps * 5)
     ]
 
     scenes.append(Scene(effects))
