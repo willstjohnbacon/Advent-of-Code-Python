@@ -3,13 +3,12 @@ from asciimatics.renderers import StaticRenderer
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.paths import Path
-from time import sleep
 import re
 
 from Dock import Dock
 
 TESTING = True
-KEYPRESS_REQUIRED_BETWEEN_MOVES = -1   #-1 for YES, 0 for NO
+KEYPRESS_REQUIRED_BETWEEN_MOVES = -1   # -1 for YES, 0 for NO
 X = 0
 Y = 1
 DOCK_OFFSET = 3
