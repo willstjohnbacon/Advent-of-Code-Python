@@ -3,7 +3,8 @@ from Animator import Animator, NONE, LIFT, ALIGN, DROP
 import re
 
 TESTING = True
-
+PLAY_PART1 = True
+PLAY_PART2 = True
 
 def is_stack_line(line):
     return "[" in line
@@ -118,7 +119,7 @@ def part1(screen):
 
     top_crates = get_top_crates(stacks)
     animator.add_scene(f"       The top crates are {top_crates}       ", NONE, stacks, [], 0, 0, 0)
-    animator.add_scene(f"             Press SPACE to exit             ", NONE, stacks, [], 0, 0, 0)
+    animator.add_scene(f"           Press SPACE to continue           ", NONE, stacks, [], 0, 0, 0)
 
     animator.play()
 
@@ -145,5 +146,8 @@ if TESTING:
 else:
     file = open("input.txt", "r")
 
-# Screen.wrapper(part1)
-Screen.wrapper(part2)
+if PLAY_PART1:
+    Screen.wrapper(part1)
+
+if PLAY_PART2:
+    Screen.wrapper(part2)
