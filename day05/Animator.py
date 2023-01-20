@@ -1,13 +1,13 @@
-from asciimatics.effects import Print
-from asciimatics.renderers import StaticRenderer
-from asciimatics.scene import Scene
 from asciimatics.screen import Screen
+from asciimatics.scene import Scene
+from asciimatics.renderers import StaticRenderer
 from asciimatics.paths import Path
+from asciimatics.effects import Print
 
-from Crane import Crane
 from Dock import Dock
-from MovingCraneHoist import MovingCraneHoist
+from Crane import Crane
 from MovingCraneTrolley import MovingCraneTrolley
+from MovingCraneHoist import MovingCraneHoist
 from MovingCrate import MovingCrate
 
 NONE = 0
@@ -15,8 +15,8 @@ LIFT = 1
 ALIGN = 2
 DROP = 3
 
-KEYPRESS_REQUIRED_BETWEEN_MOVES = -1    # if TESTING else 0  # -1 for YES, 0 for NO
-# KEYPRESS_REQUIRED_BETWEEN_MOVES = 0
+# KEYPRESS_BETWEEN_MOVES = -1    # if TESTING else 0  # -1 for YES, 0 for NO
+KEYPRESS_BETWEEN_MOVES = 0
 MOVEMENT_SPEED_FACTOR = 3
 INITIAL_FRAMES = 10
 
@@ -25,7 +25,7 @@ DOCK_OFFSET = 10    # if TESTING else 3
 LABEL_OFFSET = 1
 COMMENTARY_OFFSET = 1
 MAX_LIFT_HEIGHT = (30 - DOCK_OFFSET)    # if TESTING else (9 - DOCK_OFFSET)
-#MAX_LIFT_HEIGHT = (9 - DOCK_OFFSET)
+# MAX_LIFT_HEIGHT = (9 - DOCK_OFFSET)
 CRANE_TOP = MAX_LIFT_HEIGHT - 5
 CRANE_CLEARANCE = 20
 TROLLEY_HEIGHT = CRANE_TOP + 3
@@ -40,7 +40,7 @@ class Animator:
         self.dock_left = (self.screen.width - self.dock_width) // 2
         self.dock_floor = self.screen.height - DOCK_OFFSET
 
-        self.trolley_pos = -1
+        self.trolley_pos = self.trolley_pos = self.dock_left - (CRANE_CLEARANCE // 2)
 
     def play(self, stop_on_resize=True, repeat=False):
         self.screen.play(self.scenes, stop_on_resize=stop_on_resize, repeat=repeat)
@@ -59,13 +59,10 @@ class Animator:
         stack = stacks[from_stack if movement == LIFT else to_stack]
         stack_height = len(stack)
 
-        if self.trolley_pos == -1:
-            self.trolley_pos = self.dock_left - (CRANE_CLEARANCE // 2)
-
         if movement == LIFT:
             crate = stack[stack_height - 1]
-            crate_start_pos_y = self.dock_floor - LABEL_OFFSET - stack_height
             crate_start_pos_x = self.dock_left + (from_stack * 4)
+            crate_start_pos_y = self.dock_floor - LABEL_OFFSET - stack_height
             crate_end_pos_x = crate_start_pos_x
             crate_end_pos_y = MAX_LIFT_HEIGHT + len(crane_stack)
             crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
@@ -94,8 +91,8 @@ class Animator:
 
         elif movement == DROP:
             crate = crane_stack[len(crane_stack) - 1]
-            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
             crate_start_pos_x = self.dock_left + (to_stack * 4)
+            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
             crate_end_pos_x = crate_start_pos_x
             crate_end_pos_y = self.dock_floor - LABEL_OFFSET - stack_height - 1
             crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
@@ -124,8 +121,8 @@ class Animator:
 
         else:  # ALIGN
             crate = crane_stack[len(crane_stack) - 1]
-            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
             crate_start_pos_x = self.dock_left + (from_stack * 4)
+            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
             crate_end_pos_x = self.dock_left + (to_stack * 4)
             crate_end_pos_y = crate_start_pos_y
             crate_movement_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
@@ -169,7 +166,7 @@ class Animator:
         ]
 
         self.scenes.append(
-            Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES if movement == DROP else 0))
+            Scene(effects, clear=False, duration=KEYPRESS_BETWEEN_MOVES if movement == DROP else 0))
 
     def print_crane(self):
         crane_left = self.dock_left - CRANE_CLEARANCE

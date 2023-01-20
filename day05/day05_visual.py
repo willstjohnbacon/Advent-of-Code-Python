@@ -125,16 +125,19 @@ def part1(screen):
     return top_crates
 
 
-# def part2():
-#     stacks, move_ops = read_input()
-#
-#     print(f"Stacks: {stacks}")
-#     print(f"Move Ops: {move_ops}")
-#     print()
-#
-#     rearrange_crates_with_CrateMover_9001(screen, stacks, [], move_ops)
-#
-#     return get_top_crates(stacks)
+def part2(screen):
+    stacks, move_ops = read_input()
+
+    animator = Animator(screen, stacks)
+
+    rearrange_crates_with_CrateMover_9001(animator, stacks, [], move_ops)
+
+    top_crates = get_top_crates(stacks)
+    animator.add_scene(f"       The top crates are {top_crates}       ", NONE, stacks, [], 0, 0, 0)
+    animator.add_scene(f"             Press SPACE to exit             ", NONE, stacks, [], 0, 0, 0)
+
+    animator.play()
+    return get_top_crates(stacks)
 
 
 if TESTING:
@@ -143,3 +146,4 @@ else:
     file = open("input.txt", "r")
 
 Screen.wrapper(part1)
+# Screen.wrapper(part2)
