@@ -145,5 +145,5 @@ if TESTING:
 else:
     file = open("input.txt", "r")
 
-Screen.wrapper(part1)
-# Screen.wrapper(part2)
+# Screen.wrapper(part1)
+Screen.wrapper(part2)

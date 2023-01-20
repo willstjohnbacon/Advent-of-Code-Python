@@ -59,15 +59,21 @@ class Animator:
         stack = stacks[from_stack if movement == LIFT else to_stack]
         stack_height = len(stack)
 
+        crate_paths = {}
+
         if movement == LIFT:
-            crate = stack[stack_height - 1]
-            crate_start_pos_x = self.dock_left + (from_stack * 4)
-            crate_start_pos_y = self.dock_floor - LABEL_OFFSET - stack_height
-            crate_end_pos_x = crate_start_pos_x
-            crate_end_pos_y = MAX_LIFT_HEIGHT + len(crane_stack)
-            crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
-            crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
-                                        crate_movement_steps)
+            for crate_num in range(num_crates - 1, -1, -1):
+                crate_label = stack[stack_height - crate_num - 1]
+                crate_start_pos_x = self.dock_left + (from_stack * 4)
+                crate_start_pos_y = self.dock_floor - LABEL_OFFSET - stack_height + crate_num
+                crate_end_pos_x = crate_start_pos_x
+                crate_end_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) + crate_num
+                crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
+                crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
+                                            crate_movement_steps)
+                crate_paths.update({crate_label: crate_path})
+
+            crate_paths = dict(reversed(list(crate_paths.items())))
 
             # Trolley moves above crate to be lifted
             trolley_steps = abs(crate_start_pos_x - self.trolley_pos) // MOVEMENT_SPEED_FACTOR
@@ -90,14 +96,16 @@ class Animator:
             final_hoist_up_frame = first_hoist_up_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
 
         elif movement == DROP:
-            crate = crane_stack[len(crane_stack) - 1]
-            crate_start_pos_x = self.dock_left + (to_stack * 4)
-            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
-            crate_end_pos_x = crate_start_pos_x
-            crate_end_pos_y = self.dock_floor - LABEL_OFFSET - stack_height - 1
-            crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
-            crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
-                                        crate_movement_steps)
+            for crate_num in range(num_crates):
+                crate_label = crane_stack[len(crane_stack) - crate_num - 1]
+                crate_start_pos_x = self.dock_left + (to_stack * 4)
+                crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - crate_num - 1
+                crate_end_pos_x = crate_start_pos_x
+                crate_end_pos_y = self.dock_floor - LABEL_OFFSET - stack_height - crate_num - 1
+                crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
+                crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
+                                            crate_movement_steps)
+                crate_paths.update({crate_label: crate_path})
 
             # Trolley does not move
             trolley_steps = 0
@@ -120,14 +128,16 @@ class Animator:
             final_hoist_up_frame = first_hoist_up_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
 
         else:  # ALIGN
-            crate = crane_stack[len(crane_stack) - 1]
-            crate_start_pos_x = self.dock_left + (from_stack * 4)
-            crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
-            crate_end_pos_x = self.dock_left + (to_stack * 4)
-            crate_end_pos_y = crate_start_pos_y
-            crate_movement_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
-            crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
-                                        crate_movement_steps)
+            for crate_num in range(num_crates):
+                crate_label = crane_stack[len(crane_stack) - crate_num - 1]
+                crate_start_pos_x = self.dock_left + (from_stack * 4)
+                crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - crate_num - 1
+                crate_end_pos_x = self.dock_left + (to_stack * 4)
+                crate_end_pos_y = crate_start_pos_y
+                crate_movement_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
+                crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y,
+                                            crate_movement_steps)
+                crate_paths.update({crate_label: crate_path})
 
             # Trolley moves above stack on which crate is to be dropped
             trolley_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
@@ -159,11 +169,18 @@ class Animator:
                                stop_frame=final_trolley_frame),
             MovingCraneHoist(self.screen, hoist_up_path, start_frame=first_hoist_up_frame,
                              stop_frame=final_hoist_up_frame),
-            MovingCrate(self.screen, crate_path, f"[{crate}]", start_frame=first_crate_frame,
-                        stop_frame=final_crate_frame),
-            MovingCraneHoist(self.screen, hoist_down_path, moving_up=False, start_frame=first_hoist_down_frame,
-                             stop_frame=final_hoist_down_frame),
         ]
+
+        for crate_label, crate_path in crate_paths.items():
+            effects.append(
+                MovingCrate(self.screen, crate_path, f"[{crate_label}]", start_frame=first_crate_frame,
+                            stop_frame=final_crate_frame)
+            )
+
+        effects.append(
+            MovingCraneHoist(self.screen, hoist_down_path, moving_up=False, start_frame=first_hoist_down_frame,
+                             stop_frame=final_hoist_down_frame)
+        )
 
         self.scenes.append(
             Scene(effects, clear=False, duration=KEYPRESS_BETWEEN_MOVES if movement == DROP else 0))
