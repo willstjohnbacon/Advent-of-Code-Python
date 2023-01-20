@@ -28,13 +28,13 @@ DROP = -1
 DOCK_OFFSET = 3
 LABEL_OFFSET = 1
 COMMENTARY_OFFSET = 1
-MAX_LIFT_HEIGHT = 26 if TESTING else 5
+MAX_LIFT_HEIGHT = 26 if TESTING else 6
 CRANE_TOP = MAX_LIFT_HEIGHT - 5
 CRANE_CLEARANCE = 20
 TROLLEY_HEIGHT = CRANE_TOP + 3
 
 #TEMPORARY
-previous_trolley_pos = 70
+previous_trolley_pos = -1
 
 def print_crane(screen, dock_left, dock_floor, dock_width):
     crane_left = dock_left - CRANE_CLEARANCE
@@ -95,6 +95,9 @@ def add_crane_animation_scene(screen, scenes, description, movement, stacks, cra
 
     stack = stacks[from_stack if movement == LIFT else to_stack]
     stack_height = len(stack)
+
+    if previous_trolley_pos == -1:
+        previous_trolley_pos = dock_left - (CRANE_CLEARANCE // 2)
 
     if movement == LIFT:
         crate = stack[stack_height - 1]
