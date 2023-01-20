@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>AOC 2022. Day 14</title>
+    <style type="text/css">
+      html {
+        font-size: 14px;
+      }
+
+      @media (min-width: 768px) {
+        html {
+          font-size: 16px;
+        }
+      }
+
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+
+      body {
+        margin-bottom: 60px;
+      }
+
+      .grid-wrapper {
+        position: relative;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      .cell {
+        width: 1.2rem;
+        height: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: #777;
+      }
+
+      .sand {
+        color: #f1c40f;
+        position: absolute;
+        transition: .2s;
+
+        width: 1.2rem;
+        height: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sand.end {
+        opacity: 0;
+      }
+
+      span {
+        color: #f1c40f;
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            <div class="row">
+              <div class="col-md-12">
+                <h1>AOC 2022 - Day 14</h1>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <h2><a href="https://adventofcode.com/2022/day/14" target="_blank">Regolith Reservoir</a></h2>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label h5">Input</label>
+                  <textarea class="form-control" name="" id="input" cols="30" rows="10" wrap="off" placeholder="Enter your input"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label h5">Delay</label>
+                  <input class="form-control" type="range" min="10" max="500" step="10" value="200"
+                    id="speed"
+                    oninput="speedChanged(this.value)"
+                    onchange="speedChanged(this.value)"
+                  />
+                </div>
+                <button onclick="run()" type="button" class="btn btn-primary">Run</button>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3 output">
+                  <label class="form-label h5">Output</label>
+                  <div class="grid-wrapper" id="wrapper">
+                    <div class="grid" id="grid"></div>
+                    <div id="sands"></div>
+                  </div>
+                  <div id="info">
+                    Number of sand units: <span id="sand-units">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+
+      let defaultInput = `498,4 -> 498,6 -> 496,6
+503,4 -> 502,4 -> 502,9 -> 494,9`;
+
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    let speed = 200;
+
+    let stonesAndSands = new Map();
+
+    $(document).ready(async () => {
+
+      $("#input").text(defaultInput);
+
+      //await run();
+
+    });
+
+    let speedChanged = (val) => {
+      speed = val;
+    }
+
+    let prepareGrid = (minX, maxX, minY, maxY) => {
+      const grid = $("#grid");
+
+      grid.empty();
+
+      for (let y = minY; y <= maxY; y++){
+        let row = $("<div>", { "class" : "row" });
+
+        for(let x = minX; x<=maxX; x++){
+          let cell = $("<div>", { "class" : "cell" });
+          cell.attr("id", `cell-${x}-${y}`);
+
+          if(stonesAndSands.has(`${x}-${y}`)){ //if this is a stone
+            cell.addClass("rock");
+            cell.text("#");
+          }
+
+          if(x == 500 && y == 0){
+            cell.addClass("start");
+            cell.text("+");
+          }
+
+          row.append(cell);
+
+        }
+
+        grid.append(row);
+      }
+    }
+
+    let run = async () => {
+      console.log("run");
+
+      stonesAndSands.clear();
+
+      let minY = 0;
+      let maxY = 0;
+      let minX = Infinity;
+      let maxX = -Infinity;
+
+      const lines = $("#input").val().split("\n").map((line) => line.trim());
+      console.log(lines);
+
+      lines.forEach((item, index) => {
+        let points = item.split(" -> ").map(p => {
+          let c = p.split(",");
+          return { X : parseInt(c[0]), Y : parseInt(c[1]) };
+        });
+
+        
+        for(let p=0,q=1; q < points.length; p++, q++)
+        {
+            let first = points[p];
+            let second = points[q];
+
+            maxY = Math.max(maxY, first.Y, second.Y);
+            minY = Math.min(minY, first.Y, second.Y);
+            minX = Math.min(minX, first.X, second.X);
+            maxX = Math.max(maxX, first.X, second.X); 
+
+            if(first.X == second.X) //vertical line
+            {
+                let start = Math.min(first.Y, second.Y);
+                let end = Math.max(first.Y, second.Y);
+
+                for (let z = start; z <= end; z++)
+                {
+                    let c = { X : first.X, Y : z };
+                    c.key = `${c.X}-${c.Y}`;
+                    if (!stonesAndSands.has(c.key))
+                        stonesAndSands.set(c.key, c);
+                }
+            }
+            else if(first.Y == second.Y) //horizontal line
+            {
+                let start = Math.min(first.X, second.X);
+                var end = Math.max(first.X, second.X);
+
+                for (let z = start; z <= end; z++)
+                {
+                    let c = { X : z, Y : first.Y };
+                    c.key = `${c.X}-${c.Y}`;
+                    if (!stonesAndSands.has(c.key))
+                        stonesAndSands.set(c.key, c);
+                }
+            }
+        }
+      });
+
+      //preparing the grid to position rocks
+      prepareGrid(minX - 1, maxX + 1, minY, maxY + 1);
+
+      await delay(100);
+
+      let sandStart = { X : 500, Y : 0 };
+
+      let abyss = false;
+      let counter = 0;
+
+      const sandGrid = $("#sands");
+      sandGrid.empty();
+
+      while (!abyss)
+      {
+          counter++;
+          $("#sand-units").text(counter -1);
+          let stop = false;
+          let current = sandStart;
+
+          const sandElement = $("<div>", { "class" : "sand" });
+          sandElement.text("o");
+          sandGrid.append(sandElement);
+          updateSandPosition(sandElement, current.X, current.Y);
+
+          while (!stop)
+          {
+              await delay(speed);
+              var next = nextSandPosition(current);
+              if (current.X == next.X && current.Y == next.Y)
+              {
+                  //no room for sand, stop current and start next
+                  if (!stonesAndSands.has(next.key))
+                      stonesAndSands.set(next.key, next);
+
+                  stop = true;
+              }
+              else if (next.Y > maxY) //free flow to the bottom, 
+              {
+                  stop = true;
+                  abyss = true;
+                  sandElement.css("color", "red");
+              }
+              else
+              {
+                  current = next;
+                  updateSandPosition(sandElement, current.X, current.Y);
+              }
+          }
+      }
+      
+    }
+
+    let updateSandPosition = (sandElement, x, y) => {
+      let cell = $(`#cell-${x}-${y}`);
+      sandElement.offset({ left : cell.offset().left, top : cell.offset().top });
+    }
+
+    let nextSandPosition = (current) => {
+      let nextPoint = { X : current.X, Y : current.Y + 1 };
+      nextPoint.key = `${nextPoint.X}-${nextPoint.Y}`;
+
+      if (!stonesAndSands.has(nextPoint.key)) return nextPoint;
+
+      let left = { X : current.X - 1, Y : current.Y + 1 };
+      left.key = `${left.X}-${left.Y}`;
+      if (!stonesAndSands.has(left.key)) return left;
+
+      let right = { X : current.X + 1, Y : current.Y + 1 };
+      right.key = `${right.X}-${right.Y}`;
+      if (!stonesAndSands.has(right.key)) return right;
+
+      return current;
+    }
+      
+    </script>
+  </body>
+</html>
