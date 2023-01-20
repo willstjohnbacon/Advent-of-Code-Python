@@ -6,10 +6,17 @@ from asciimatics.paths import Path
 import re
 
 from Dock import Dock
+from Crane import Crane
+from MovingCrate import MovingCrate
+from MovingCraneTrolley import MovingCraneTrolley
+from MovingCraneHoist import MovingCraneHoist
 
-TESTING = False
+TESTING = True
+
 KEYPRESS_REQUIRED_BETWEEN_MOVES = -1 if TESTING else 0  # -1 for YES, 0 for NO
 # KEYPRESS_REQUIRED_BETWEEN_MOVES = 0
+MOVEMENT_SPEED_FACTOR = 3
+INITIAL_FRAMES = 10
 
 X = 0
 Y = 1
@@ -21,29 +28,25 @@ DROP = -1
 DOCK_OFFSET = 3
 LABEL_OFFSET = 1
 COMMENTARY_OFFSET = 1
-CRANE_TOP = 20 if TESTING else 2
+MAX_LIFT_HEIGHT = 26 if TESTING else 5
+CRANE_TOP = MAX_LIFT_HEIGHT - 5
+CRANE_CLEARANCE = 20
+TROLLEY_HEIGHT = CRANE_TOP + 3
 
+#TEMPORARY
+previous_trolley_pos = 70
 
-class MovingCrate(Sprite):
-    """
-    Plots a crate moving along the given path.
-    """
+def print_crane(screen, dock_left, dock_floor, dock_width):
+    crane_left = dock_left - CRANE_CLEARANCE
 
-    def __init__(self, screen, path, crate="[ ]", colour=Screen.COLOUR_WHITE, start_frame=0,
-                 stop_frame=0):
-        """
-        See :py:obj:`.Sprite` for details.
-        """
-        super(MovingCrate, self).__init__(
-            screen,
-            renderer_dict={
-                "default": StaticRenderer(images=[crate])
-            },
-            path=path,
-            colour=colour,
-            clear=True,
-            start_frame=start_frame,
-            stop_frame=stop_frame)
+    return Print(
+        screen,
+        Crane(crane_left, dock_floor, dock_width, CRANE_TOP, CRANE_CLEARANCE),
+        x=crane_left, y=CRANE_TOP,
+        colour=Screen.COLOUR_YELLOW,
+        clear=False,
+        start_frame=0,
+        stop_frame=5)
 
 
 def print_stacks(screen, dock_left, stacks_top, stacks):
@@ -81,6 +84,9 @@ def calculate_path(start_pos_x, start_pos_y, end_pos_x, end_pos_y, steps):
 
 def add_crane_animation_scene(screen, scenes, description, movement, stacks, crane_stack, num_crates, from_stack,
                               to_stack):
+    #TEMPORARY
+    global previous_trolley_pos
+
     max_stack_height = max(map(len, stacks))
     dock_width = len(stacks) * 4
     dock_left = (screen.width - dock_width) // 2
@@ -92,42 +98,94 @@ def add_crane_animation_scene(screen, scenes, description, movement, stacks, cra
 
     if movement == LIFT:
         crate = stack[stack_height - 1]
+        crate_start_pos_y = dock_floor - LABEL_OFFSET - stack_height
+        crate_start_pos_x = dock_left + (from_stack * 4)
+        crate_end_pos_x = crate_start_pos_x
+        crate_end_pos_y = MAX_LIFT_HEIGHT + len(crane_stack)
+        crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
+        crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y, crate_movement_steps)
 
-        start_pos_y = dock_floor - LABEL_OFFSET - stack_height
-        start_pos_x = dock_left + (from_stack * 4)
+        #Trolley moves above crate to be lifted
+        trolley_steps = abs(crate_start_pos_x - previous_trolley_pos) // MOVEMENT_SPEED_FACTOR
+        trolley_path = calculate_path(previous_trolley_pos, TROLLEY_HEIGHT, crate_start_pos_x, TROLLEY_HEIGHT, trolley_steps)
 
-        end_pos_x = start_pos_x
-        end_pos_y = CRANE_TOP + len(crane_stack)
+        hoist_steps = crate_movement_steps
+        hoist_down_path = calculate_path(crate_start_pos_x, crate_end_pos_y - 1, crate_start_pos_x, crate_start_pos_y - 1, hoist_steps)
+        hoist_up_path = calculate_path(crate_start_pos_x, crate_start_pos_y - 1, crate_start_pos_x, crate_end_pos_y - 1, hoist_steps)
 
-        steps = abs(start_pos_y - end_pos_y)
+        first_trolley_frame = INITIAL_FRAMES
+        final_trolley_frame = first_trolley_frame + (trolley_steps * MOVEMENT_SPEED_FACTOR)
+        first_hoist_down_frame = final_trolley_frame
+        final_hoist_down_frame = first_hoist_down_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
+        first_crate_frame = final_hoist_down_frame
+        final_crate_frame = first_crate_frame + (crate_movement_steps * MOVEMENT_SPEED_FACTOR)
+        first_hoist_up_frame = final_hoist_down_frame
+        final_hoist_up_frame = first_hoist_up_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
+
     elif movement == DROP:
         crate = crane_stack[len(crane_stack) - 1]
+        crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
+        crate_start_pos_x = dock_left + (to_stack * 4)
+        crate_end_pos_x = crate_start_pos_x
+        crate_end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
+        crate_movement_steps = abs(crate_start_pos_y - crate_end_pos_y)
+        crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y, crate_movement_steps)
 
-        start_pos_y = CRANE_TOP + len(crane_stack) - 1
-        start_pos_x = dock_left + (to_stack * 4)
+        #Trolley does not move
+        trolley_steps = 0
+        trolley_path = calculate_path(crate_end_pos_x, TROLLEY_HEIGHT, crate_end_pos_x, TROLLEY_HEIGHT, trolley_steps)
 
-        end_pos_x = start_pos_x
-        end_pos_y = dock_floor - LABEL_OFFSET - stack_height - 1
+        hoist_steps = crate_movement_steps
+        hoist_down_path = calculate_path(crate_end_pos_x, crate_start_pos_y - 1, crate_end_pos_x, crate_end_pos_y - 1, hoist_steps)
+        hoist_up_path = calculate_path(crate_end_pos_x, crate_end_pos_y - 1, crate_end_pos_x, crate_start_pos_y - 1, hoist_steps)
 
-        steps = abs(start_pos_y - end_pos_y)
+        first_trolley_frame = 0
+        final_trolley_frame = 1
+        first_hoist_down_frame = INITIAL_FRAMES
+        final_hoist_down_frame = first_hoist_down_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
+        first_crate_frame = first_hoist_down_frame
+        final_crate_frame = first_crate_frame + (crate_movement_steps * MOVEMENT_SPEED_FACTOR)
+        first_hoist_up_frame = final_hoist_down_frame
+        final_hoist_up_frame = first_hoist_up_frame + (hoist_steps * MOVEMENT_SPEED_FACTOR)
+
     else:  # ALIGN
         crate = crane_stack[len(crane_stack) - 1]
+        crate_start_pos_y = MAX_LIFT_HEIGHT + len(crane_stack) - 1
+        crate_start_pos_x = dock_left + (from_stack * 4)
+        crate_end_pos_x = dock_left + (to_stack * 4)
+        crate_end_pos_y = crate_start_pos_y
+        crate_movement_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
+        crate_path = calculate_path(crate_start_pos_x, crate_start_pos_y, crate_end_pos_x, crate_end_pos_y, crate_movement_steps)
 
-        start_pos_y = CRANE_TOP + len(crane_stack) - 1
-        start_pos_x = dock_left + (from_stack * 4)
+        #Trolley moves above stack on which crate is to be dropped
+        trolley_steps = abs(crate_start_pos_x - crate_end_pos_x) // MOVEMENT_SPEED_FACTOR
+        trolley_path = calculate_path(crate_start_pos_x, TROLLEY_HEIGHT, crate_end_pos_x, TROLLEY_HEIGHT, trolley_steps)
 
-        end_pos_x = dock_left + (to_stack * 4)
-        end_pos_y = start_pos_y
+        #Hoist does not move
+        hoist_steps = 0
+        hoist_down_path = calculate_path(crate_end_pos_x, TROLLEY_HEIGHT + 1, crate_end_pos_x, TROLLEY_HEIGHT + 1, hoist_steps)
+        hoist_up_path = hoist_down_path
 
-        steps = abs(start_pos_x - end_pos_x) // 3
+        first_trolley_frame = INITIAL_FRAMES
+        final_trolley_frame = first_trolley_frame + (trolley_steps * MOVEMENT_SPEED_FACTOR)
+        first_hoist_down_frame = final_trolley_frame
+        final_hoist_down_frame = final_trolley_frame
+        first_crate_frame = first_trolley_frame
+        final_crate_frame = first_crate_frame + (crate_movement_steps * MOVEMENT_SPEED_FACTOR)
+        first_hoist_up_frame = final_trolley_frame
+        final_hoist_up_frame = final_trolley_frame
 
-    final_frame = (steps * 5) + 5
+    previous_trolley_pos = crate_end_pos_x
 
-    path = calculate_path(start_pos_x, start_pos_y, end_pos_x, end_pos_y, steps)
-
-    effects = [print_description(screen, dock_floor, description),
-               print_stacks(screen, dock_left, stacks_top, stacks),
-               MovingCrate(screen, path, f"[{crate}]", start_frame=5, stop_frame=final_frame)]
+    effects = [
+                print_description(screen, dock_floor, description),
+                print_crane(screen, dock_left, dock_floor, dock_width),
+                print_stacks(screen, dock_left, stacks_top, stacks),
+                MovingCraneTrolley(screen, trolley_path, start_frame=first_trolley_frame, stop_frame=final_trolley_frame),
+                MovingCraneHoist(screen, hoist_up_path, start_frame=first_hoist_up_frame, stop_frame=final_hoist_up_frame),
+                MovingCrate(screen, crate_path, f"[{crate}]", start_frame=first_crate_frame, stop_frame=final_crate_frame),
+                MovingCraneHoist(screen, hoist_down_path, moving_up=False, start_frame=first_hoist_down_frame, stop_frame=final_hoist_down_frame),
+            ]
 
     scenes.append(Scene(effects, clear=False, duration=KEYPRESS_REQUIRED_BETWEEN_MOVES if movement == DROP else 0))
 
