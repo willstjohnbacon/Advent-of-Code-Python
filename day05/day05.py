@@ -1,6 +1,6 @@
 import re
 
-TESTING = True
+TESTING = False
 
 
 def is_stack_line(line):
@@ -56,7 +56,7 @@ def read_input():
         elif is_stack_num_line(line):
             num_stacks = count_stacks(line)
 
-    print(f"There are {num_stacks} stacks")
+    # print(f"There are {num_stacks} stacks")
 
     stacks = parse_stack_info(stack_info, num_stacks)
 
@@ -80,21 +80,21 @@ def move(stacks, crane_stack, num_crates, from_stack, to_stack):
 
 def rearrange_crates(stacks, crane_stack, move_ops):
     for num_crates, from_stack, to_stack in move_ops:
-        print(f"Moving {num_crates} from {from_stack} to {to_stack}")
+        # print(f"Moving {num_crates} from {from_stack} to {to_stack}")
 
         for crate in range(0, num_crates):
             move(stacks, crane_stack, 1, from_stack - 1, to_stack - 1)
 
-        print(stacks)
+        # print(stacks)
 
 
 def rearrange_crates_with_CrateMover_9001(stacks, crane_stack, move_ops):
     for num_crates, from_stack, to_stack in move_ops:
-        print(f"Moving {num_crates} from {from_stack} to {to_stack}")
+        # print(f"Moving {num_crates} from {from_stack} to {to_stack}")
 
         move(stacks, crane_stack, num_crates, from_stack - 1, to_stack - 1)
 
-        print(stacks)
+        # print(stacks)
 
     return stacks
 
@@ -111,9 +111,9 @@ def get_top_crates(stacks):
 def part1():
     stacks, move_ops = read_input()
 
-    print(f"Stacks: {stacks}")
-    print(f"Move Ops: {move_ops}")
-    print()
+    # print(f"Stacks: {stacks}")
+    # print(f"Move Ops: {move_ops}")
+    # print()
 
     rearrange_crates(stacks, [], move_ops)
 
@@ -123,9 +123,9 @@ def part1():
 def part2():
     stacks, move_ops = read_input()
 
-    print(f"Stacks: {stacks}")
-    print(f"Move Ops: {move_ops}")
-    print()
+    # print(f"Stacks: {stacks}")
+    # print(f"Move Ops: {move_ops}")
+    # print()
 
     rearrange_crates_with_CrateMover_9001(stacks, [], move_ops)
 
